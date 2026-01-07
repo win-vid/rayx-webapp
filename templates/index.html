@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block main %}
+    <div class = "FormContainer">
+        <form action="{{url_for('handle_post')}}" method="POST" enctype="multipart/form-data">
+            <label for="rmlFile">Upload RML File: </label>
+            <input type="file" id="rmlFile" name="rmlFile" accept=".rml"> 
+            <button type="submit">Send</button>
+        </form>
+        {% block received %}
+        {% endblock %}
+        {% block display %}
+        {% endblock %}
+    </div>
+{% endblock %}

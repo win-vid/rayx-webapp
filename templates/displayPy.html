@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block main %}
+    <div class = "FormContainer">
+        <form action="{{url_for('display_handle_post')}}" method="POST" enctype="multipart/form-data">
+            <label for="rmlFile">Upload RML File: </label>
+            <input type="file" id="rmlFile" name="rmlFile" accept=".rml"> 
+            <button type="submit">Send</button>
+            <label for="mirrorAngle">Mirror Angle: </label>
+            <input type="number" id="mirrorAngle" name="mirrorAngle" placeholder="0">
+        </form>
+    </div>
+    {% block received %}
+        {% endblock %}
+        <hr>
+        <div class="DisplayContainer">
+            {% if traced_beamline_content %}
+            <table border="1">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    {% for col in traced_beamline_content[0].keys() %}
+                    <th>{{ col }}</th>
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in traced_beamline_content %}
+                    <tr>
+                    <td>{{ loop.index0 }}</td>
+                    {% for v in row.values() %}
+                        <td>{{ v }}</td>
+                    {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No rays traced yet.</p>
+            {% endif %}
+        </div>
+{% endblock %}

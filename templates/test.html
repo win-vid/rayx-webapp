@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAYX - Web App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='rayx-logo.png') }}">
+</head>
+<body>
+    <div class = "ExceptionContainer">
+        <p> {{exception}} </p>
+    </div>
+    <div class = "TitleContainer">
+        <h1>RAYX - Web App</h1>
+    </div>
+    <div class = "DescriptionContainer">
+        <p>Upload an RML file to be traced by RayX</p>
+    </div>
+    {% block main %}
+    {% endblock %}
+</body>
+</html>

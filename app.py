@@ -9,7 +9,7 @@ import rayx, os, subprocess, traceback
 
 app = Flask(__name__)
 
-# Upload folder, creates one if it doesn't exist
+# Upload- & Output folder, creates one if it doesn't exist
 UPLOAD_PATH = "./uploads/"
 OUTPUT_PATH = "./output/"
 os.makedirs(UPLOAD_PATH, exist_ok=True)
@@ -35,8 +35,6 @@ def handle_post():
         except Exception as e:
             print("File missing or could not be read", e)
             return render_template("index.html", exception=e)
-        
-        # get_traced_beamline(rml_file)
         
         call_rayx(UPLOAD_PATH + rml_file.filename)
 
@@ -108,6 +106,7 @@ def get_traced_beamline(rml_file) -> rayx.Rays:
     # Get the absolute path
     base_dir = os.path.dirname(os.path.realpath(__file__))
     path = os.path.join(base_dir, "uploads", rml_file.filename)
+    rayx.Beamline()
         
     beamLine = rayx.import_beamline(path)
 

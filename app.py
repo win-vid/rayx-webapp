@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, send_file
 from H5Reader import H5Reader
 from FileOperations import *
-import rayx, os, subprocess, traceback
+import rayx, os, subprocess, traceback, io, base64
+import matplotlib.pyplot as plt
 
 # Runs RayX as a subprocess and returns the output as a downloadable .h5 file
 # TODO: Rework the error handling logic
@@ -12,6 +13,7 @@ app = Flask(__name__)
 # Upload- & Output folder, creates one if it doesn't exist
 UPLOAD_PATH = "./uploads/"
 OUTPUT_PATH = "./output/"
+RAYX_PATH = "./rayx/rayx"
 os.makedirs(UPLOAD_PATH, exist_ok=True)
 os.makedirs(OUTPUT_PATH, exist_ok=True)
 
@@ -55,6 +57,9 @@ def display_py():
 # Result of the traced beamline will be stored in a local dictionary
 @app.route("/display/handle_post", methods=["POST"])
 def display_handle_post():
+
+    plot_data = None
+
     if request.method == "POST":
         
         rml_file = request.files["rmlFile"]
@@ -66,6 +71,7 @@ def display_handle_post():
         try:    
             traced_beamline = get_traced_beamline(rml_file)
 
+            # Creates a dictionary from the traced beamline that will be used to display the table
             traced_beamline_dictionary = {
                 "Direction X": traced_beamline.direction_x,
                 "Direction Y": traced_beamline.direction_y,
@@ -94,11 +100,24 @@ def display_handle_post():
             ]
 
             remove_file(UPLOAD_PATH, rml_file)
+
+            fig = plt.figure()
+            x = range(n)
+            y = [i**0.5 for i in x]
+            plt.plot(x, y)
+            plt.title("Result After POST")
+
+            buf = io.BytesIO()
+            fig.savefig(buf, format="png")
+            buf.seek(0)
+            plt.close(fig)
+
+            plot_data = base64.b64encode(buf.getvalue()).decode("ascii")
         except Exception as e:
             traceback.print_exc()
             return render_template("displayH5.html", exception=e)
       
-    return render_template("displayPy.html", RMLFileName=output_file_name, traced_beamline_content=rows)
+    return render_template("displayPy.html", RMLFileName=output_file_name, traced_beamline_content=rows, plot_data=plot_data)
 
 # Returns a traced beamline using RayX
 def get_traced_beamline(rml_file) -> rayx.Rays:
@@ -106,7 +125,6 @@ def get_traced_beamline(rml_file) -> rayx.Rays:
     # Get the absolute path
     base_dir = os.path.dirname(os.path.realpath(__file__))
     path = os.path.join(base_dir, "uploads", rml_file.filename)
-    rayx.Beamline()
         
     beamLine = rayx.import_beamline(path)
 
@@ -116,7 +134,7 @@ def get_traced_beamline(rml_file) -> rayx.Rays:
 # Calls RayX as a subprocess and saves the output as a .h5 file in the output folder
 def call_rayx(rml_path: str) -> None:
 
-        rayx_cmd = ["./resources/rayx", "-i", rml_path]
+        rayx_cmd = [RAYX_PATH, "-i", rml_path]
         rayx_cmd += ['-o', OUTPUT_PATH + output_file_name]
 
         result = subprocess.run(rayx_cmd, capture_output=True, text=True)

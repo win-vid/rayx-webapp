@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, send_file
 from H5Reader import H5Reader
 from FileOperations import *
 import rayx, os, subprocess, traceback, io, base64
-from Plot import Plot
+from Histogram import Histogram
 
 # Runs RayX as a subprocess and returns the output as a downloadable .h5 file
 # TODO: Rework the error handling logic
@@ -95,7 +95,7 @@ def display_handle_post():
             keys = list(traced_beamline_dictionary.keys())
             n = len(traced_beamline_dictionary[keys[0]])
             
-            # For '#' on the table
+            # For '#'-row on the table
             rows = [
                 {key: traced_beamline_dictionary[key][i] for key in keys}
                 for i in range(n)
@@ -104,9 +104,9 @@ def display_handle_post():
             remove_file(UPLOAD_PATH, rml_file)
 
             position_x = traced_beamline_dictionary["Position X"]
-            x_indices = list(range(len(position_x)))
+            position_y = traced_beamline_dictionary["Position Y"]
 
-            plot = Plot(x_indices, position_x, "Result")
+            plot = Histogram(position_x, position_y, xLabel="x / mm", yLabel="y / mm")
             plot_data = plot.GetPlotDataBase64()
         except Exception as e:
             traceback.print_exc()

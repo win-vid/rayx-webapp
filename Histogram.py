@@ -42,10 +42,23 @@ class Histogram:
         ax.set_xlabel(self.xlabel)
         ax.set_ylabel(self.ylabel)
 
-        # Construct 1D histograms
+        # Construct 1D histograms for x- and y-axis
         divider = make_axes_locatable(ax)
-        ax_hist_x = divider.append_axes("bottom", pad=0.3, size="15%", sharex=ax)
-        ax_hist_y = divider.append_axes("left", pad=0.3, size="15%", sharey=ax)
+        
+        ax_hist_x = divider.append_axes(
+            "bottom", pad=0.3, 
+            size="15%", 
+            sharex=ax
+        )
+        ax_hist_x.set_xlabel(self.xlabel)
+        
+        ax_hist_y = divider.append_axes(
+            "left", 
+            pad=0.3, 
+            size="15%", 
+            sharey=ax
+        )
+        ax_hist_y.set_ylabel(self.ylabel)
 
         ax_hist_x.hist(self.dataX, bins="fd", histtype="step")
         ax_hist_y.hist(self.dataY, bins="fd", histtype="step", orientation="horizontal")

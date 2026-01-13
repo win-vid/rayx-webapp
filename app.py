@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, send_file
 from H5Reader import H5Reader
 from FileOperations import *
 import rayx, os, subprocess, traceback, io, base64
-import matplotlib.pyplot as plt
+from Plot import Plot
 
 # Runs RayX as a subprocess and returns the output as a downloadable .h5 file
 # TODO: Rework the error handling logic
@@ -94,6 +94,8 @@ def display_handle_post():
 
             keys = list(traced_beamline_dictionary.keys())
             n = len(traced_beamline_dictionary[keys[0]])
+            
+            # For '#' on the table
             rows = [
                 {key: traced_beamline_dictionary[key][i] for key in keys}
                 for i in range(n)
@@ -101,23 +103,21 @@ def display_handle_post():
 
             remove_file(UPLOAD_PATH, rml_file)
 
-            fig = plt.figure()
-            x = range(n)
-            y = [i**0.5 for i in x]
-            plt.plot(x, y)
-            plt.title("Result After POST")
+            position_x = traced_beamline_dictionary["Position X"]
+            x_indices = list(range(len(position_x)))
 
-            buf = io.BytesIO()
-            fig.savefig(buf, format="png")
-            buf.seek(0)
-            plt.close(fig)
-
-            plot_data = base64.b64encode(buf.getvalue()).decode("ascii")
+            plot = Plot(x_indices, position_x, "Result")
+            plot_data = plot.GetPlotDataBase64()
         except Exception as e:
             traceback.print_exc()
             return render_template("displayH5.html", exception=e)
       
-    return render_template("displayPy.html", RMLFileName=output_file_name, traced_beamline_content=rows, plot_data=plot_data)
+    return render_template(
+        "displayPy.html", 
+        RMLFileName=output_file_name, 
+        traced_beamline_content=rows, 
+        plot_data=plot_data
+        )
 
 # Returns a traced beamline using RayX
 def get_traced_beamline(rml_file) -> rayx.Rays:

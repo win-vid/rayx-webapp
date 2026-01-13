@@ -13,10 +13,10 @@
     {% block received %}
         {% endblock %}
         <hr>
-        <div class="DisplayContainer">
-            <div class="PlotsContainer">
-                <img src="data:image/png;base64,{{ plot_data }}" alt="Result Plot">
-            </div>
+        <div class="PlotsContainer">
+            <img src="data:image/png;base64,{{ plot_data }}" alt="Result Plot">
+        </div>
+        <div class="DisplayContainer">            
             {% if traced_beamline_content %}
             <table border="1">
                 <thead>

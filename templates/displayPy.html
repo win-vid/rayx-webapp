@@ -16,6 +16,13 @@
         <div class="PlotsContainer">
             <img src="data:image/png;base64,{{ plot_data }}" alt="Result Plot">
         </div>
+        <div class="PlotInfo">
+            <p>Plot Info</p>
+            <p>FWHM_X: {{ FWHM_X }}</p>
+            <p>FWHM_Y: {{ FWHM_Y }}</p>
+            <p>Execution Time: {{ execution_time }}ms</p>
+        </div>
+        <!--
         <div class="DisplayContainer">            
             {% if traced_beamline_content %}
             <table border="1">
@@ -42,4 +49,5 @@
             <p>No rays traced yet.</p>
             {% endif %}
         </div>
+        -->
 {% endblock %}

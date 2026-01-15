@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, send_file
 from H5Reader import H5Reader
 from FileOperations import *
-import rayx, os, subprocess, traceback, io, base64
+import rayx, os, subprocess, traceback, io, base64, time
 from Histogram import Histogram
 
 # Runs RayX as a subprocess and returns the output as a downloadable .h5 file
@@ -60,6 +60,8 @@ def display_handle_post():
 
     plot_data = None
 
+    t = time.time()
+
     if request.method == "POST":
         
         rml_file = request.files["rmlFile"]
@@ -115,8 +117,11 @@ def display_handle_post():
     return render_template(
         "displayPy.html", 
         RMLFileName=output_file_name, 
-        traced_beamline_content=rows, 
-        plot_data=plot_data
+        #traced_beamline_content=rows, 
+        plot_data=plot_data,
+        FWHM_X=plot.fwhmX,
+        FWHM_Y=plot.fwhmY,
+        execution_time= round((time.time() - t) * 1e3, 3)
         )
 
 # Returns a traced beamline using RayX

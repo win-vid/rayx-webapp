@@ -120,7 +120,9 @@ def display_handle_post():
         plot_data=plot_data,
         FWHM_X=plot.fwhmX,
         FWHM_Y=plot.fwhmY,
-        execution_time= round((time.time() - t) * 1e3, 3)
+        execution_time= round((time.time() - t) * 1e3, 3),
+        focus_x=plot.histogramDataX.focus,
+        focus_y=plot.histogramDataY.focus
         )
 
 # Returns a traced beamline using RayX

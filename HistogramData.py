@@ -59,13 +59,48 @@ class HistogramData:
 
         return self.x2 - self.x1
 
+    def GetFocus(self, data) -> float:
+        """
+        Returns the focus of the data. Data needs to be a histogram.
+        """
+        counts, bin_edges = np.histogram(data, bins="fd")
+
+        # Area of histogram
+        area = np.sum(counts)
+        half_area = area / 2
+
+        x_right = None
+        x_left = None
+
+        for i in range(len(bin_edges) - 1):
+            if half_area < np.sum(counts[i:]):
+                x_right = bin_edges[i]
+                break
+
+        for i in range(len(bin_edges) - 1, 0, -1):
+            if half_area < np.sum(counts[:i]):
+                x_left = bin_edges[i]
+                break
+        
+        focus = (x_right + x_left) / 2
+        
+        # TODO: Refactor this
+        self.focus_y = np.interp(focus, (bin_edges[:-1] + bin_edges[1:]) / 2, counts)
+
+        return focus
+
     def __init__(self, data):
         self.data = list(data)
         self.x1 = None
         self.x2 = None
         self.y = None
+        self.focus_y = None
+        
         try:
             self.fwhm = self.GetFWHM(self.data)
+            self.focus = self.GetFocus(self.data)
+            print(self.focus)        
         except ValueError as e:
             print("Error calculating FWHM:", e)
             self.fwhm = 0.0
+            self.focus = 0.0

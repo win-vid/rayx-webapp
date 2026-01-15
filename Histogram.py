@@ -84,14 +84,12 @@ class Histogram:
         ax_hist_x.plot([self.histogramDataX.x2, self.histogramDataX.x2], [0, self.histogramDataX.y], '--', lw=1, color=self.line_color)
         
         # Draw FWHM-lines for Histogram Y
-        # vertical FWHM line (correct)
         ax_hist_y.plot(
             [self.histogramDataY.y, self.histogramDataY.y],
             [self.histogramDataY.x1, self.histogramDataY.x2],
             '--', lw=1, color='red'
         )
 
-        # horizontal markers at x1 and x2
         ax_hist_y.hlines(
             [self.histogramDataY.x1, self.histogramDataY.x2],
             xmin=0,
@@ -100,6 +98,10 @@ class Histogram:
             linestyles='--',
             linewidth=1
         )
+
+        # Draw focus point axises for Histogram X & Y
+        ax_hist_x.plot([self.histogramDataX.focus, self.histogramDataX.focus], [0, self.histogramDataX.focus_y], 'k-', color="green")
+        ax_hist_y.plot([0, self.histogramDataY.focus_y], [self.histogramDataY.focus, self.histogramDataY.focus], 'k-', color="green")
 
         # Save figure to buffer
         buf = io.BytesIO()

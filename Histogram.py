@@ -79,6 +79,7 @@ class Histogram:
         ax_hist_y.hist(dataY, bins="fd", histtype="step", orientation="horizontal")
 
         # Draw FWHM-lines for Histogram X
+        # TODO: Turn lines into a separate variable
         ax_hist_x.plot([self.histogramDataX.x1, self.histogramDataX.x2], [self.histogramDataX.y, self.histogramDataX.y], '--', lw=1, color='red')
         ax_hist_x.plot([self.histogramDataX.x1, self.histogramDataX.x1], [0, self.histogramDataX.y], '--', lw=1, color=self.line_color)
         ax_hist_x.plot([self.histogramDataX.x2, self.histogramDataX.x2], [0, self.histogramDataX.y], '--', lw=1, color=self.line_color)

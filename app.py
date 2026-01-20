@@ -82,7 +82,6 @@ def display_handle_post():
                 "Electric Field Y": traced_beamline.electric_field_y,
                 "Electric Field Z": traced_beamline.electric_field_z,
                 "Energy": traced_beamline.energy,
-                #"Event ID": traced_beamline.event_id,                  # TODO:.event_id is empty
                 "Event Type": traced_beamline.event_type,
                 "Last Element ID": traced_beamline.last_element_id,
                 "Order": traced_beamline.order,

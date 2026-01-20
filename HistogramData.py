@@ -28,7 +28,7 @@ class HistogramData:
 
         # safety check
         if len(indices_above_half) < 2:
-            raise ValueError("Not enough data above half maximum to compute FWHM")
+            raise ValueError("Not enough data above half maximum to compute FWHM in HistogramData.py")
 
         left_index = indices_above_half[0]
         right_index = indices_above_half[-1]
@@ -64,4 +64,8 @@ class HistogramData:
         self.x1 = None
         self.x2 = None
         self.y = None
-        self.fwhm = self.GetFWHM(self.data)
+        try:
+            self.fwhm = self.GetFWHM(self.data)
+        except ValueError as e:
+            print("Error calculating FWHM:", e)
+            self.fwhm = 0.0

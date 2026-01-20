@@ -15,12 +15,15 @@ class Histogram:
 
     def __init__(self, dataX, dataY, xLabel="No label", yLabel="No label", title="No title"):
 
+        # Construct HistogramData for x and y
         self.histogramDataX = HistogramData(dataX)
         self.histogramDataY = HistogramData(dataY)
 
+        # Full width half maximum x and y
         self.fwhmX = self.histogramDataX.fwhm
         self.fwhmY = self.histogramDataY.fwhm
 
+        # Histogram customization
         self.xlabel = xLabel
         self.ylabel = yLabel
         self.title = title

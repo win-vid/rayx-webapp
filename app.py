@@ -19,38 +19,9 @@ os.makedirs(OUTPUT_PATH, exist_ok=True)
 
 output_file_name = ""
 
-# Runs the app
+# Runs the app and starts the server
 @app.route("/",)
 def index():
-    return render_template("index.html")
-
-# Handles the post on the server, sends the output .h5 file to the client
-@app.route("/handle_post", methods=["POST"])
-def handle_post():
-    
-    if request.method == "POST":
-        try:
-            rml_file = request.files["rmlFile"]
-            output_file_name = os.path.splitext(rml_file.filename)[0] + ".h5"
-            
-            save_file(UPLOAD_PATH, rml_file)
-        except Exception as e:
-            print("File missing or could not be read", e)
-            return render_template("index.html", exception=e)
-        
-        call_rayx(UPLOAD_PATH + rml_file.filename)
-
-        remove_file(UPLOAD_PATH, rml_file)    
-    
-    return send_file(OUTPUT_PATH + output_file_name, as_attachment=True, download_name=output_file_name, mimetype="application/octet-stream")
-
-@app.route("/display")
-def display_h5():
-    return render_template("displayH5.html")
-
-# Displays the Python HTML-Page
-@app.route("/display-py")
-def display_py():
     return render_template("displayPy.html")
 
 # Handles the post on the server, displays the content of the rml file on the site
@@ -125,7 +96,7 @@ def display_handle_post():
         focus_y=plot.histogramDataY.focus
         )
 
-# Returns a traced beamline using RayX
+# Returns a traced beamline using the RayX python package
 def get_traced_beamline(rml_file) -> rayx.Rays:
 
     # Get the absolute path
@@ -137,7 +108,12 @@ def get_traced_beamline(rml_file) -> rayx.Rays:
     rays = beamLine.trace()
     return rays
 
+# ===============================================================================================================
+# Due to the python bindings now working the following functions have become obsolete. Will be kept just in case.
+# ===============================================================================================================
+
 # Calls RayX as a subprocess and saves the output as a .h5 file in the output folder
+# call_rayx is obsolete now because RayX is called with the python package
 def call_rayx(rml_path: str) -> None:
 
         rayx_cmd = [RAYX_PATH, "-i", rml_path]
@@ -151,6 +127,34 @@ def call_rayx(rml_path: str) -> None:
         if result.returncode != 0:
             print("Error occurred while running rayx.")
             raise Exception(result.stderr) 
+
+# Handles the post on the server, sends the output .h5 file to the client
+# Originally used to display the data of the traced beamline on a table on the website
+# obsolete
+@app.route("/handle_post", methods=["POST"])
+def handle_post():
+    
+    if request.method == "POST":
+        try:
+            rml_file = request.files["rmlFile"]
+            output_file_name = os.path.splitext(rml_file.filename)[0] + ".h5"
+            
+            save_file(UPLOAD_PATH, rml_file)
+        except Exception as e:
+            print("File missing or could not be read", e)
+            return render_template("index.html", exception=e)
+        
+        call_rayx(UPLOAD_PATH + rml_file.filename)
+
+        remove_file(UPLOAD_PATH, rml_file)    
+    
+    return send_file(OUTPUT_PATH + output_file_name, as_attachment=True, download_name=output_file_name, mimetype="application/octet-stream")
+
+# Renders the displayH5.html
+# obsolete
+@app.route("/display")
+def display_h5():
+    return render_template("displayH5.html")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

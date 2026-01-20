@@ -4,6 +4,8 @@ import h5py
 class H5Reader:
 
     """
+    H5Reader is obsolete now because RayX is called with the python package and does not need to output a .h5 file anymore
+
     The H5Reader classes is designed to read RayX.h5 files and return the data as a dictionary
     """
 

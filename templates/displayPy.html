@@ -14,13 +14,17 @@
         {% endblock %}
         <hr>
         <div class="PlotsContainer">
-            <img src="data:image/png;base64,{{ plot_data }}" alt="Result Plot">
+            {% for plot in plot_data %}
+                <img src="data:image/png;base64,{{ plot }}" alt="Result Plot">
+            {% endfor %}
         </div>
         <div class="PlotInfo">
             <p>Plot Info</p>
+            <!-- TODO: FIX LATER
             <p>FWHM_X: {{ FWHM_X }}     FWHM_Y: {{ FWHM_Y }}</p>
             <p>Focus: X={{ focus_x }}   Y={{ focus_y }}</p>
             <p>Execution Time: {{ execution_time }}ms</p>
+            -->
         </div>
         <!--
         <div class="DisplayContainer">            

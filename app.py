@@ -29,7 +29,7 @@ def index():
 @app.route("/display/handle_post", methods=["POST"])
 def display_handle_post():
 
-    plot_data = None
+    plot_data = []
 
     t = time.time()
 
@@ -42,7 +42,8 @@ def display_handle_post():
         save_file(UPLOAD_PATH, rml_file)
         
         try:    
-            traced_beamline = get_traced_beamline(rml_file)
+            beamline = get_beamline(rml_file)
+            traced_beamline = beamline.trace()
 
             # Creates a dictionary from the traced beamline that will be used to display the table
             traced_beamline_dictionary = {
@@ -78,8 +79,19 @@ def display_handle_post():
             position_x = traced_beamline_dictionary["Position X"]
             position_y = traced_beamline_dictionary["Position Y"]
 
-            plot = Histogram(position_x, position_y, xLabel="x / mm", yLabel="y / mm")
-            plot_data = plot.GetPlotDataBase64()
+            last_element = traced_beamline.last_element_id
+            pos_x = traced_beamline.position_x
+            pos_z = traced_beamline.position_z
+
+            index = 0
+            for element in range(len(beamline.elements)):
+                mask = last_element == element
+                
+                plot = Histogram(pos_x[mask], pos_z[mask], xLabel="x / mm", yLabel="y / mm", title=(beamline.elements[element].name))
+                
+                plot_data.append(plot.GetPlotDataBase64())
+                index += 1
+            
         except Exception as e:
             traceback.print_exc()
             return render_template("displayH5.html", exception=e)
@@ -89,24 +101,19 @@ def display_handle_post():
         RMLFileName=output_file_name, 
         #traced_beamline_content=rows, 
         plot_data=plot_data,
-        FWHM_X=plot.fwhmX,
-        FWHM_Y=plot.fwhmY,
         execution_time= round((time.time() - t) * 1e3, 3),
-        focus_x=plot.histogramDataX.focus,
-        focus_y=plot.histogramDataY.focus
         )
 
 # Returns a traced beamline using the RayX python package
-def get_traced_beamline(rml_file) -> rayx.Rays:
+def get_beamline(rml_file) -> rayx.Rays:
 
     # Get the absolute path
     base_dir = os.path.dirname(os.path.realpath(__file__))
     path = os.path.join(base_dir, "uploads", rml_file.filename)
-        
-    beamLine = rayx.import_beamline(path)
 
-    rays = beamLine.trace()
-    return rays
+    # Import the beamline   
+    beamLine = rayx.import_beamline(path)
+    return beamLine
 
 # ===============================================================================================================
 # Due to the python bindings now working the following functions have become obsolete. Will be kept just in case.

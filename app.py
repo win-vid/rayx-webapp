@@ -45,6 +45,7 @@ def display_handle_post():
             beamline = get_beamline(rml_file)
             traced_beamline = beamline.trace()
 
+            """
             # Creates a dictionary from the traced beamline that will be used to display the table
             traced_beamline_dictionary = {
                 "Direction X": traced_beamline.direction_x,
@@ -73,24 +74,30 @@ def display_handle_post():
                 {key: traced_beamline_dictionary[key][i] for key in keys}
                 for i in range(n)
             ]
+            """
 
             remove_file(UPLOAD_PATH, rml_file)
-
-            position_x = traced_beamline_dictionary["Position X"]
-            position_y = traced_beamline_dictionary["Position Y"]
 
             last_element = traced_beamline.last_element_id
             pos_x = traced_beamline.position_x
             pos_z = traced_beamline.position_z
 
-            index = 0
-            for element in range(len(beamline.elements)):
-                mask = last_element == element
-                
-                plot = Histogram(pos_x[mask], pos_z[mask], xLabel="x / mm", yLabel="y / mm", title=(beamline.elements[element].name))
+            # Creates an array that holds all of the beamlines elements as a 2D histogram
+
+            # If the beamline has only one element, plot the whole beamline, prevents the histogram from being empty
+            if len(beamline.elements) <= 1:
+                plot = Histogram(pos_x, pos_z, xLabel="x / mm", yLabel="y / mm", title="")
                 
                 plot_data.append(plot.GetPlotDataBase64())
-                index += 1
+            else:
+                index = 0
+                for element in range(len(beamline.elements)):
+                    mask = last_element == element
+                    
+                    plot = Histogram(pos_x[mask], pos_z[mask], xLabel="x / mm", yLabel="y / mm", title=(beamline.elements[element].name))
+                    
+                    plot_data.append(plot.GetPlotDataBase64())
+                    index += 1
             
         except Exception as e:
             traceback.print_exc()

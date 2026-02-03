@@ -98,8 +98,7 @@ class HistogramData:
         
         try:
             self.fwhm = self.GetFWHM(self.data)
-            self.focus = self.GetFocus(self.data)
-            print(self.focus)        
+            self.focus = self.GetFocus(self.data)      
         except ValueError as e:
             print("Error calculating FWHM:", e)
             self.fwhm = 0.0

@@ -108,7 +108,6 @@ def display_handle_post():
         RMLFileName=output_file_name, 
         #traced_beamline_content=rows, 
         plot_data=plot_data,
-        execution_time= round((time.time() - t) * 1e3, 3),
         )
 
 # Returns a traced beamline using the RayX python package

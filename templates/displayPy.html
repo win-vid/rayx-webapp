@@ -13,7 +13,6 @@
     {% block received %}
         {% endblock %}
         <hr>
-        <p style="background:limegreen">Execution Time: {{ execution_time }}ms, {{ (execution_time / 1000) | round(2) }}s</p>
         <div class="PlotsContainer">
             {% for plot in plot_data %}
                 <img src="data:image/png;base64,{{ plot }}" alt="Result Plot">
@@ -26,32 +25,4 @@
             <p>Focus: X={{ focus_x }}   Y={{ focus_y }}</p>
             -->
         </div>
-        <!--
-        <div class="DisplayContainer">            
-            {% if traced_beamline_content %}
-            <table border="1">
-                <thead>
-                <tr>
-                    <th>#</th>
-                    {% for col in traced_beamline_content[0].keys() %}
-                    <th>{{ col }}</th>
-                    {% endfor %}
-                </tr>
-                </thead>
-                <tbody>
-                {% for row in traced_beamline_content %}
-                    <tr>
-                    <td>{{ loop.index0 }}</td>
-                    {% for v in row.values() %}
-                        <td>{{ v }}</td>
-                    {% endfor %}
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <p>No rays traced yet.</p>
-            {% endif %}
-        </div>
-        -->
 {% endblock %}

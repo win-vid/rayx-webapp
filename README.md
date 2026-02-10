@@ -1,6 +1,6 @@
 # RAYX Web Visualization App
 
-A lightweight Flask-based web application for visualizing **RayX beamline simulations** .  
+A lightweight Flask-based web application for visualizing <a href="https://github.com/hz-b/rayx">RayX beamline simulations</a> .  
 The app allows users to upload an `.rml` file, trace the beamline using the RayX Python bindings, and interactively inspect the resulting ray distributions as **2D histograms with per-element breakdowns**.
 
 ---
@@ -36,8 +36,8 @@ The app allows users to upload an `.rml` file, trace the beamline using the RayX
 `cd rayx-webapp`
 
 ### 2. Installing dependencies using uv
-From the project root run:
-`uv venv`
+From the project root run: <br>
+`uv venv` <br>
 `uv sync`
 
 This will:
@@ -48,5 +48,5 @@ This will:
 Run the following to make the web app run locally:
 `uv run python ap.py`
 
-You can then access the web app by entering the following adress into your web-browser:
-`http:/localhost:5000`
+You can then access the web app by entering the following address into your web-browser:
+`http://localhost:5000`

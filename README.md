@@ -41,7 +41,7 @@ This will:
 ### 3. Running a local server
 
 Run the following to make the web app run locally:
-`uv run python ap.py`
+`uv run python app.py`
 
 You can then access the web app by entering the following address into your web-browser:
 `http://localhost:5000`

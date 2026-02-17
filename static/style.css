@@ -1,3 +1,12 @@
+:root {
+    /*  COLORS  */
+    --text-color: #333;
+    --label-text-color: #fff;
+    --label-background-color: #333;
+    --primary-color: #08477B;
+    --primary-color-hover: #0b6ebe;
+}
+
 * {
     font-family: 'Roboto', sans-serif;
     font-size: 16px;
@@ -33,65 +42,25 @@ h1 {
     font-size: 35px;
 }
 
-#rayx-logo {
-    width: 10rem;
-}
-
 label {
     text-decoration: underline;
-    background: #333;
-    color: white;
+    background: var(--label-background-color);
+    color: var(--label-text-color);
     padding: 0.5rem;
     border-radius: 5px;
 }
 
-.GetRequestContainer{
-    background: green;
-    text-align: center;
-}
-
-.GetRequestContainer h2{
-    color: white;
-}
-
-.DisplayContainer {
-    background: #cdcdcd;
-    margin: 2rem;
-    padding: 2rem;
-    border-radius: 5px;
-    width: 100%;
-    height: 30rem;
-    overflow-x: scroll;
-    overflow-y: scroll;
-}
-
-.H5ContentContainer {
-    display: flex;
-    flex-flow:row;
-    
-}
-
-tbody tr:nth-child(even){
-    background: #b1b0b0;
-}
-
-tbody{
-    margin: 1rem;
-}
-
-table td + td , table th + th{ border-left:2px solid black; }
-
 button {
-    background: #08477B;
-    color: #fff;
+    background: var(--primary-color);
+    color: var(--label-text-color);
     border-radius: 5px;
     padding: 0.5rem;
     border: none;
 }
 
 button:hover {
-    background: #156bb1;
-    color: #fff;
+    background: var(--primary-color-hover);
+    color: var(--label-text-color);
 }
 
 form *{
@@ -113,7 +82,23 @@ form *{
     color: #fff;    
 }
 
+.Plot {
+    display: flex;
+    flex-flow: row;
+    justify-content: center;
+    align-items: center;
+    margin: 2rem;
+}
+
+.Plot p{
+    background: var(--label-background-color);
+    color: var(--label-text-color);
+    padding: 0.5rem;
+    border-radius: 5px;
+}
+
 /* DEBUGGING STYLES */
 .ExceptionContainer p {
     color: red;
+    padding: 0.5rem;
 }

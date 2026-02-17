@@ -5,10 +5,6 @@ from Histogram import Histogram
 import pandas as pd
 import numpy as np
 
-# Runs RayX as a subprocess and returns the output as a downloadable .h5 file
-# TODO: Rework the error handling logic
-# TODO: Rework .h5 and rayx-package logic. Maybe keep both as separate functions
-
 app = Flask(__name__)
 
 # Upload- & Output folder, creates one if it doesn't exist
@@ -62,13 +58,12 @@ def display_handle_post():
             remove_file(UPLOAD_PATH, rml_file)
 
             # Plot the traced beamline
-            last_element = traced_beamline.last_element_id
-            pos_x = traced_beamline.position_x
-            pos_y = traced_beamline.position_y
-            pos_z = traced_beamline.position_z
+            last_element = df["last_element_id"]
+            pos_x = df["position_x"]
+            pos_y = df["position_y"]
+            pos_z = df["position_z"]
 
             # Creates an array that holds all of the beamlines elements as a 2D histogram
-            print(beamline.sources)
             for source in range(len(beamline.sources)):
                 mask = last_element == source
                 plot = Histogram(pos_x[mask], pos_y[mask], xLabel="x / mm", yLabel="y / mm", title=(beamline.sources[source].name))
@@ -93,25 +88,30 @@ def display_handle_post():
                     pass
         except Exception as e:
             traceback.print_exc()
-            return render_template("displayH5.html", exception=e)
+            return render_template("displayPy.html", exception=e)
       
     return render_template(
         "displayPy.html", 
         RMLFileName=output_file_name, 
         #traced_beamline_content=rows, 
         plot_data=plot_data,
-        )
+    )
 
 # Returns a traced beamline using the RayX python package
 def get_beamline(rml_file) -> rayx.Rays:
 
-    # Get the absolute path
-    base_dir = os.path.dirname(os.path.realpath(__file__))
-    path = os.path.join(base_dir, "uploads", rml_file.filename)
+    try:
+        # Get the absolute path
+        base_dir = os.path.dirname(os.path.realpath(__file__))
+        path = os.path.join(base_dir, "uploads", rml_file.filename)
 
-    # Import the beamline   
-    beamLine = rayx.import_beamline(path)
-    return beamLine
+        # Import the beamline   
+        beamLine = rayx.import_beamline(path)
+        return beamLine
+    except Exception as e:
+        traceback.print_exc()
+        return render_template("displayPy.html", exception=e)
 
+# Runs the server
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

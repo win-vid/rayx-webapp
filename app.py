@@ -3,6 +3,8 @@ from H5Reader import H5Reader
 from FileOperations import *
 import rayx, os, subprocess, traceback, io, base64, time
 from Histogram import Histogram
+import pandas
+import numpy as np
 
 # Runs RayX as a subprocess and returns the output as a downloadable .h5 file
 # TODO: Rework the error handling logic
@@ -80,25 +82,33 @@ def display_handle_post():
 
             last_element = traced_beamline.last_element_id
             pos_x = traced_beamline.position_x
+            pos_y = traced_beamline.position_y
             pos_z = traced_beamline.position_z
 
             # Creates an array that holds all of the beamlines elements as a 2D histogram
+            print(beamline.sources)
+            for source in range(len(beamline.sources)):
+                mask = last_element == source
+                plot = Histogram(pos_x[mask], pos_y[mask], xLabel="x / mm", yLabel="y / mm", title=(beamline.sources[source].name))
+                plot_data.append(plot.GetPlotDataBase64())
 
             # If the beamline has only one element, plot the whole beamline, prevents the histogram from being empty
             if len(beamline.elements) <= 1:
-                plot = Histogram(pos_x, pos_z, xLabel="x / mm", yLabel="y / mm", title="")
+                plot = Histogram(pos_x, pos_z, xLabel="x / mm", yLabel="z / mm", title="")
                 
                 plot_data.append(plot.GetPlotDataBase64())
             else:
-                index = 0
-                for element in range(len(beamline.elements)):
-                    mask = last_element == element
-                    
-                    plot = Histogram(pos_x[mask], pos_z[mask], xLabel="x / mm", yLabel="y / mm", title=(beamline.elements[element].name))
-                    
-                    plot_data.append(plot.GetPlotDataBase64())
-                    index += 1
-            
+                index = 1
+                try:
+                    for element in range(len(beamline.elements)):
+                        mask = last_element == element + len(beamline.sources)
+
+                        plot = Histogram(pos_x[mask], pos_z[mask], xLabel="x / mm", yLabel="z / mm", title=(beamline.elements[element].name))
+
+                        plot_data.append(plot.GetPlotDataBase64())
+                except:
+                    print("Index out of range" + str(index))
+                    pass
         except Exception as e:
             traceback.print_exc()
             return render_template("displayH5.html", exception=e)

@@ -102,6 +102,17 @@ form *{
     font-weight: bold;
 }
 
+#rmlFile{
+    border-radius: 5px;
+    padding: 0.5rem;
+}
+
+#rmlFile:hover {
+    cursor: pointer;
+    background: #156bb1;
+    color: #fff;    
+}
+
 /* DEBUGGING STYLES */
 .ExceptionContainer p {
     color: red;

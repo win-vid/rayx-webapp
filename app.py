@@ -3,7 +3,7 @@ from H5Reader import H5Reader
 from FileOperations import *
 import rayx, os, subprocess, traceback, io, base64, time
 from Histogram import Histogram
-import pandas
+import pandas as pd
 import numpy as np
 
 # Runs RayX as a subprocess and returns the output as a downloadable .h5 file
@@ -27,7 +27,6 @@ def index():
     return render_template("displayPy.html")
 
 # Handles the post on the server, displays the content of the rml file on the site
-# Result of the traced beamline will be stored in a local dictionary
 @app.route("/display/handle_post", methods=["POST"])
 def display_handle_post():
 
@@ -43,43 +42,27 @@ def display_handle_post():
             
         save_file(UPLOAD_PATH, rml_file)
         
-        try:    
+        try:
+            # Trace beamline    
             beamline = get_beamline(rml_file)
             traced_beamline = beamline.trace()
 
-            """
-            # Creates a dictionary from the traced beamline that will be used to display the table
-            traced_beamline_dictionary = {
-                "Direction X": traced_beamline.direction_x,
-                "Direction Y": traced_beamline.direction_y,
-                "Direction Z": traced_beamline.direction_z,
-                "Electric Field X": traced_beamline.electric_field_x,
-                "Electric Field Y": traced_beamline.electric_field_y,
-                "Electric Field Z": traced_beamline.electric_field_z,
-                "Energy": traced_beamline.energy,
-                "Event Type": traced_beamline.event_type,
-                "Last Element ID": traced_beamline.last_element_id,
-                "Order": traced_beamline.order,
-                "Path Length": traced_beamline.path_length,
-                "Position X": traced_beamline.position_x,
-                "Position Y": traced_beamline.position_y,
-                "Position Z": traced_beamline.position_z,
-                "Ray ID": traced_beamline.ray_id,
-                "Source ID": traced_beamline.source_id
-            }
-
-            keys = list(traced_beamline_dictionary.keys())
-            n = len(traced_beamline_dictionary[keys[0]])
-            
-            # For '#'-row on the table
-            rows = [
-                {key: traced_beamline_dictionary[key][i] for key in keys}
-                for i in range(n)
+            # Create pandas dataframe
+            columns = [
+                "direction_x", "direction_y", "direction_z",
+                "electric_field_x", "electric_field_y", "electric_field_z",
+                "energy", "event_type",
+                "last_element_id", "order", "path_length",
+                "position_x", "position_y", "position_z",
+                "ray_id", "source_id",
             ]
-            """
 
+            df = pd.DataFrame({col: getattr(traced_beamline, col) for col in columns})
+
+            # Remove file from server
             remove_file(UPLOAD_PATH, rml_file)
 
+            # Plot the traced beamline
             last_element = traced_beamline.last_element_id
             pos_x = traced_beamline.position_x
             pos_y = traced_beamline.position_y
@@ -130,54 +113,6 @@ def get_beamline(rml_file) -> rayx.Rays:
     # Import the beamline   
     beamLine = rayx.import_beamline(path)
     return beamLine
-
-# ===============================================================================================================
-# Due to the python bindings now working the following functions have become obsolete. Will be kept just in case.
-# ===============================================================================================================
-
-# Calls RayX as a subprocess and saves the output as a .h5 file in the output folder
-# call_rayx is obsolete now because RayX is called with the python package
-def call_rayx(rml_path: str) -> None:
-
-        rayx_cmd = [RAYX_PATH, "-i", rml_path]
-        rayx_cmd += ['-o', OUTPUT_PATH + output_file_name]
-
-        result = subprocess.run(rayx_cmd, capture_output=True, text=True)
-        
-        if result.stderr:
-            print("STDERR:\n", result.stderr)
-
-        if result.returncode != 0:
-            print("Error occurred while running rayx.")
-            raise Exception(result.stderr) 
-
-# Handles the post on the server, sends the output .h5 file to the client
-# Originally used to display the data of the traced beamline on a table on the website
-# obsolete
-@app.route("/handle_post", methods=["POST"])
-def handle_post():
-    
-    if request.method == "POST":
-        try:
-            rml_file = request.files["rmlFile"]
-            output_file_name = os.path.splitext(rml_file.filename)[0] + ".h5"
-            
-            save_file(UPLOAD_PATH, rml_file)
-        except Exception as e:
-            print("File missing or could not be read", e)
-            return render_template("index.html", exception=e)
-        
-        call_rayx(UPLOAD_PATH + rml_file.filename)
-
-        remove_file(UPLOAD_PATH, rml_file)    
-    
-    return send_file(OUTPUT_PATH + output_file_name, as_attachment=True, download_name=output_file_name, mimetype="application/octet-stream")
-
-# Renders the displayH5.html
-# obsolete
-@app.route("/display")
-def display_h5():
-    return render_template("displayH5.html")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

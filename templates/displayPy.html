@@ -14,7 +14,7 @@
         <div class="PlotsContainer">
             {% for plot in plot_data %}
                 <div class="Plot">
-                    <img src="data:image/png;base64,{{ plot.plot_image }}" alt="Result Plot">
+                    <div>{{ plot.plot_html | safe }}</div>
                     <div class="PlotInfo">
                         <p>
                             <b><u>FWHM</u></b><br>

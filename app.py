@@ -67,13 +67,14 @@ def display_handle_post():
             for source in range(len(beamline.sources)):
                 mask = last_element == source
                 plot = Histogram(pos_x[mask], pos_y[mask], xLabel="x / mm", yLabel="y / mm", title=(beamline.sources[source].name))
-                plot_data.append(plot.GetPlotDataBase64())
+                
+                plot_data.append(plot)
 
             # If the beamline has only one element, plot the whole beamline, prevents the histogram from being empty
             if len(beamline.elements) <= 1:
                 plot = Histogram(pos_x, pos_z, xLabel="x / mm", yLabel="z / mm", title="")
                 
-                plot_data.append(plot.GetPlotDataBase64())
+                plot_data.append(plot)
             else:
                 index = 1
                 try:
@@ -82,7 +83,7 @@ def display_handle_post():
 
                         plot = Histogram(pos_x[mask], pos_z[mask], xLabel="x / mm", yLabel="z / mm", title=(beamline.elements[element].name))
 
-                        plot_data.append(plot.GetPlotDataBase64())
+                        plot_data.append(plot)
                 except:
                     print("Index out of range" + str(index))
                     pass

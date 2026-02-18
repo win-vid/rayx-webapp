@@ -14,16 +14,18 @@
         <div class="PlotsContainer">
             {% for plot in plot_data %}
                 <div class="Plot">
-                    <img src="data:image/png;base64,{{ plot }}" alt="Result Plot">
-                    <p>FWHM <br>X: {{ fwhm_x }} Y:<br>Center of mass<br>X: Y:</p>
+                    <img src="data:image/png;base64,{{ plot.plot_image }}" alt="Result Plot">
+                    <div class="PlotInfo">
+                        <p>
+                            <b><u>FWHM</u></b><br>
+                            X: {{ plot.fwhmX }}<br>
+                            Y: {{ plot.fwhmY }}<br>
+                            <b><u>Center of mass</u></b><br>
+                            X: {{ plot.histogramDataX.info["centerOfMass"] }} <br>
+                            Y: {{ plot.histogramDataY.info["centerOfMass"]}}
+                        </p>
+                    </div>
                 </div>
             {% endfor %}
-        </div>
-        <div class="PlotInfo">
-            <p>Plot Info</p>
-            <!-- TODO: FIX LATER
-            <p>FWHM_X: {{ FWHM_X }}     FWHM_Y: {{ FWHM_Y }}</p>
-            <p>Focus: X={{ focus_x }}   Y={{ focus_y }}</p>
-            -->
         </div>
 {% endblock %}

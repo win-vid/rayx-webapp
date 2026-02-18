@@ -18,7 +18,7 @@ class HistogramData:
         # Get Maximum and half of maximum
         max_count = np.max(counts)
         half_max = max_count / 2
-        self.y = half_max
+        self.info["y"] = half_max
 
         # middle of the bins
         bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
@@ -35,9 +35,9 @@ class HistogramData:
 
         # left interpolation (guard against index underflow)
         if left_index == 0:
-            self.x1 = bin_centers[0]
+            self.info["x1"] = bin_centers[0]
         else:
-            self.x1 = self.interp_x(
+            self.info["x1"] = self.interp_x(
                 counts[left_index - 1],
                 counts[left_index],
                 bin_centers[left_index - 1],
@@ -47,9 +47,9 @@ class HistogramData:
 
         # right interpolation (guard against index overflow)
         if right_index == len(counts) - 1:
-            self.x2 = bin_centers[-1]
+            self.info["x2"] = bin_centers[-1]
         else:
-            self.x2 = self.interp_x(
+            self.info["x2"] = self.interp_x(
                 counts[right_index],
                 counts[right_index + 1],
                 bin_centers[right_index],
@@ -57,11 +57,11 @@ class HistogramData:
                 half_max
             )
 
-        return self.x2 - self.x1
+        return self.info["x2"] - self.info["x1"]
 
-    def GetFocus(self, data) -> float:
+    def GetCenterOfMass(self, data) -> float:
         """
-        Returns the focus of the data. Data needs to be a histogram.
+        Returns the centerOfMass of the data. Data needs to be a histogram.
         """
         counts, bin_edges = np.histogram(data, bins="fd")
 
@@ -82,24 +82,24 @@ class HistogramData:
                 x_left = bin_edges[i]
                 break
         
-        focus = (x_right + x_left) / 2
-        
-        # TODO: Refactor this
-        self.focus_y = np.interp(focus, (bin_edges[:-1] + bin_edges[1:]) / 2, counts)
+        centerOfMass = (x_right + x_left) / 2
 
-        return focus
+        return centerOfMass
 
     def __init__(self, data):
+
         self.data = list(data)
-        self.x1 = None
-        self.x2 = None
-        self.y = None
-        self.focus_y = None
+        
+        self.info = {
+            "fwhm": 0.0,
+            "centerOfMass": 0.0,
+            "x1": 0.0,
+            "x2": 0.0,
+            "y": 0.0
+        }
         
         try:
-            self.fwhm = self.GetFWHM(self.data)
-            self.focus = self.GetFocus(self.data)      
+            self.info["fwhm"] = self.GetFWHM(self.data)
+            self.info["centerOfMass"] = self.GetCenterOfMass(self.data)      
         except ValueError as e:
             print("Error calculating FWHM:", e)
-            self.fwhm = 0.0
-            self.focus = 0.0

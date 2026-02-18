@@ -22,8 +22,8 @@ class Histogram:
         self.histogramDataY = HistogramData(dataY)
 
         # Full width half maximum x and y
-        self.fwhmX = self.histogramDataX.fwhm
-        self.fwhmY = self.histogramDataY.fwhm
+        self.fwhmX = self.histogramDataX.info["fwhm"]
+        self.fwhmY = self.histogramDataY.info["fwhm"]
 
         # Histogram customization
         self.xlabel = xLabel
@@ -37,6 +37,8 @@ class Histogram:
                 f"x and y must have same length, got "
                 f"{len(self.histogramDataX.data)} and {len(self.histogramDataY.data)}"
             )
+        
+        self.plot_image = self.GetPlotDataBase64()
 
     def GetPlotDataBase64(self) -> str:
         """
@@ -109,47 +111,48 @@ class Histogram:
 
         # Draw FWHM-lines for Histogram X
         ax_hist_x.plot(
-            [self.histogramDataX.x1, self.histogramDataX.x2],
-            [self.histogramDataX.y, self.histogramDataX.y],
+            [self.histogramDataX.info["x1"], self.histogramDataX.info["x2"]],
+            [self.histogramDataX.info["y"], self.histogramDataX.info["y"]],
             '--', lw=1, color='red'
         )
         ax_hist_x.plot(
-            [self.histogramDataX.x1, self.histogramDataX.x1],
-            [0, self.histogramDataX.y],
+            [self.histogramDataX.info["x1"], self.histogramDataX.info["x1"]],
+            [0, self.histogramDataX.info["y"]],
             '--', lw=1, color=self.line_color
         )
         ax_hist_x.plot(
-            [self.histogramDataX.x2, self.histogramDataX.x2],
-            [0, self.histogramDataX.y],
+            [self.histogramDataX.info["x2"], self.histogramDataX.info["x2"]],
+            [0, self.histogramDataX.info["y"]],
             '--', lw=1, color=self.line_color
         )
 
         # Draw FWHM-lines for Histogram Y
         ax_hist_y.plot(
-            [self.histogramDataY.y, self.histogramDataY.y],
-            [self.histogramDataY.x1, self.histogramDataY.x2],
+            [self.histogramDataY.info["y"], self.histogramDataY.info["y"]],
+            [self.histogramDataY.info["x1"], self.histogramDataY.info["x2"]],
             '--', lw=1, color='red'
         )
 
         ax_hist_y.hlines(
-            [self.histogramDataY.x1, self.histogramDataY.x2],
+            [self.histogramDataY.info["x1"], self.histogramDataY.info["x2"]],
             xmin=0,
-            xmax=self.histogramDataY.y,
+            xmax=self.histogramDataY.info["y"],
             colors=self.line_color,
             linestyles='--',
             linewidth=1
         )
 
-        # Draw focus point axes for Histogram X & Y
-        ax_hist_x.plot(
-            [self.histogramDataX.focus, self.histogramDataX.focus],
-            [0, self.histogramDataX.focus_y],
-            color="green"
+        # Draw centerOfMass point axes for Histogram X & Y
+        ax_hist_x.axvline(
+            self.histogramDataX.info["centerOfMass"],
+            color="green",
+            linewidth=1
         )
-        ax_hist_y.plot(
-            [0, self.histogramDataY.focus_y],
-            [self.histogramDataY.focus, self.histogramDataY.focus],
-            color="green"
+
+        ax_hist_y.axhline(
+            self.histogramDataY.info["centerOfMass"],
+            color="green",
+            linewidth=1
         )
 
         # Save figure to buffer

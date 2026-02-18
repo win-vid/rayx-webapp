@@ -95,6 +95,11 @@ form *{
     color: var(--label-text-color);
     padding: 0.5rem;
     border-radius: 5px;
+    height: 100%;
+}
+
+.Plot u{
+    color: var(--label-text-color)
 }
 
 /* DEBUGGING STYLES */

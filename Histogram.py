@@ -80,7 +80,12 @@ class Histogram:
         )
 
         # Add colorbar
-        fig.colorbar(h, ax=ax)
+        fig.colorbar(
+            h, 
+            ax=ax, 
+            location="left",
+            pad=.15
+        )
 
         # Set Labels & Title
         ax.set_xlabel(self.xlabel)
@@ -99,12 +104,16 @@ class Histogram:
         ax_hist_x.set_xlabel(self.xlabel)
 
         ax_hist_y = divider.append_axes(
-            "left",
+            "right",
             pad=0.3,
             size="15%",
             sharey=ax
         )
-        ax_hist_y.set_ylabel(self.ylabel)
+        #ax_hist_y.set_ylabel(self.ylabel)
+
+        ax_hist_y.invert_xaxis() 
+        ax_hist_y.yaxis.set_ticks_position("right")
+        ax_hist_y.yaxis.set_label_position("right")
 
         ax_hist_x.hist(dataX, bins="fd", histtype="step")
         ax_hist_y.hist(dataY, bins="fd", histtype="step", orientation="horizontal")

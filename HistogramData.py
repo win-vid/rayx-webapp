@@ -91,11 +91,11 @@ class HistogramData:
         self.data = list(data)
         
         self.info = {
-            "fwhm": 0.0,
-            "centerOfMass": 0.0,
-            "x1": 0.0,
-            "x2": 0.0,
-            "y": 0.0
+            "fwhm": 0.0,            # Full Width at Half Maximum
+            "x1": 0.0,              # FWHM x1           (x1, y)---------(x2, y)
+            "x2": 0.0,              # FWHM x2               |              |
+            "y": 0.0,               # FWHM y            (x1, 0)         (x2, 0)
+            "centerOfMass": 0.0     # Center of Mass
         }
         
         try:

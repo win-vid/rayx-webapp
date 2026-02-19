@@ -1,7 +1,7 @@
 # RAYX Web App
 
 A lightweight Flask-based web application for visualizing <a href="https://github.com/hz-b/rayx">RayX beamline simulations</a> .  
-The app allows users to upload an `.rml` file, trace the beamline using the RayX Python bindings, and interactively inspect the resulting ray distributions as **2D histograms with per-element breakdowns**.
+The app allows users to upload an `.rml` file, trace the beamline using the RayX Python bindings, and **interactively** inspect the resulting ray distributions as **2D histograms with per-element breakdowns**.
 
 ## Features
 
@@ -10,16 +10,16 @@ The app allows users to upload an `.rml` file, trace the beamline using the RayX
 - Generate:
   - 2D histograms
   - Marginal 1D histograms
-  - indicators
-- Render plots server-side using Matplotlib
-- Return plots as Base64-encoded PNGs for easy web embedding
+  - indicators (Full Width Half Maximum, Center of Mass)
+- Render plots server-side using plotly
+- Return plots as Base64-encoded string for easy web embedding
 
 ## Tech Stack
 
 - **Python 3**
 - **Flask** – web framework
 - **RayX** – beamline tracing engine
-- **Matplotlib** – plotting
+- **Plotly** – plotting
 - **NumPy** – numerical processing
 - **Jinja2** – templating
 

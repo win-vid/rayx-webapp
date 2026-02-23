@@ -1,6 +1,6 @@
 # RAYX Web App
 
-A lightweight Flask-based web application for visualizing <a href="https://github.com/hz-b/rayx">RayX beamline simulations</a> .  
+A lightweight Flask-based web application for visualizing <a href="https://github.com/hz-b/rayx">RAYX beamline simulations</a> .  
 The app allows users to upload an `.rml` file, trace the beamline using the RayX Python bindings, and interactively inspect the resulting ray distributions as **2D histograms with per-element breakdowns**.
 
 ## Features

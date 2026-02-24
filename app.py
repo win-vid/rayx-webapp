@@ -1,20 +1,23 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, redirect, flash, url_for
 from FileOperations import *
 import rayx, os, subprocess, traceback, io, base64, time
 from Histogram import Histogram
 import pandas as pd
 import numpy as np
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
 # Upload- & Output folder, creates one if it doesn't exist
-UPLOAD_PATH = "./uploads/"
-OUTPUT_PATH = "./output/"
-RAYX_PATH = "./rayx/rayx"
-os.makedirs(UPLOAD_PATH, exist_ok=True)
-os.makedirs(OUTPUT_PATH, exist_ok=True)
+UPLOAD_FOLDER = "./uploads/"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-output_file_name = ""
+output_file_name = ""     # TODO: unused
+
+# Configurations
+app.config["MAX_CONTENT_LENGTH"] = 10 * 1000 * 1000     # Limits rml_file size to 10 MB
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = {"rml"}
 
 # Runs the app and starts the server
 @app.route("/",)
@@ -31,11 +34,23 @@ def display_handle_post():
 
     if request.method == "POST":
         
+        # Check if the post request has the file part
+        if "rmlFile" not in request.files:
+            return redirect(request.url)
+
         rml_file = request.files["rmlFile"]
 
+        # If the user does not select a file, the browser submits an
+        # empty file without a filename.
+        if rml_file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if rml_file and allowed_file(rml_file.filename):
+            filename = secure_filename(rml_file.filename)
+            rml_file.filename = filename
+            save_file(UPLOAD_FOLDER, rml_file)
+
         output_file_name = rml_file.filename
-            
-        save_file(UPLOAD_PATH, rml_file)
         
         try:
             # Trace beamline    
@@ -55,7 +70,7 @@ def display_handle_post():
             df = pd.DataFrame({col: getattr(traced_beamline, col) for col in columns})
 
             # Remove file from server
-            remove_file(UPLOAD_PATH, rml_file)
+            remove_file(UPLOAD_FOLDER, rml_file)
 
             # Plot the traced beamline
             last_element = df["last_element_id"]
@@ -93,7 +108,7 @@ def display_handle_post():
       
     return render_template(
         "displayPy.html", 
-        RMLFileName=output_file_name, 
+        RMLFileName=get_cleaned_filename(output_file_name), 
         #traced_beamline_content=rows, 
         plot_data=plot_data,
     )
@@ -112,6 +127,11 @@ def get_beamline(rml_file) -> rayx.Rays:
     except Exception as e:
         traceback.print_exc()
         return render_template("displayPy.html", exception=e)
+
+# Checks if the uploaded file is allowed
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Runs the server
 if __name__ == "__main__":

@@ -1,3 +1,4 @@
+# region Imports
 from flask import Flask, render_template, request, send_file, redirect, flash, url_for
 from FileOperations import *
 import rayx, os, subprocess, traceback, io, base64, time
@@ -5,6 +6,7 @@ from Histogram import Histogram
 import pandas as pd
 import numpy as np
 from werkzeug.utils import secure_filename
+# endregion
 
 app = Flask(__name__)
 
@@ -12,7 +14,7 @@ app = Flask(__name__)
 UPLOAD_FOLDER = "./uploads/"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-output_file_name = ""     # TODO: unused
+output_file_name = ""
 
 # Configurations
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1000 * 1000     # Limits rml_file size to 10 MB
@@ -41,10 +43,11 @@ def display_handle_post():
         rml_file = request.files["rmlFile"]
 
         # If the user does not select a file, the browser submits an
-        # empty file without a filename.
+        # empty file without a filename. User is redirected to the home page
         if rml_file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
+            return render_template("displayPy.html")
+        
+        # Check if file is allowed and save it, if it is
         if rml_file and allowed_file(rml_file.filename):
             filename = secure_filename(rml_file.filename)
             rml_file.filename = filename
@@ -109,7 +112,6 @@ def display_handle_post():
     return render_template(
         "displayPy.html", 
         RMLFileName=get_cleaned_filename(output_file_name), 
-        #traced_beamline_content=rows, 
         plot_data=plot_data,
     )
 

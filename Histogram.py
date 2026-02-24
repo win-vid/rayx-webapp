@@ -199,5 +199,17 @@ class Histogram:
         )
         # endregion
 
+        fig.update_layout(
+            dragmode="pan"
+        )
+
         # Return embeddable HTML
-        return fig.to_html(full_html=False, include_plotlyjs="cdn")
+        return fig.to_html(
+            full_html=False, 
+            include_plotlyjs="cdn",
+            config={
+                "scrollZoom": True,      # wheel zoom
+                "doubleClick": "reset",  # double-click resets
+                "displaylogo": False     # remove Plotly logo
+            }
+        )

@@ -56,24 +56,35 @@ class Histogram:
         # Create subplots
         fig = make_subplots(
             rows=2, cols=2,
-            column_widths=[0.85, 0.15],  # main vs side
+            column_widths=[0.15, 0.85],  # main vs side
             row_heights=[0.85, 0.15],    # main vs bottom
             specs=[
-                [{"type": "histogram2d"}, {"type": "histogram"}],  # main 2D + side
-                [{"type": "histogram"}, None]                      # bottom histogram
+                [{"type": "histogram"}, {"type": "histogram2d"}],  # side + main 2d histogram
+                [None, {"type": "histogram"}]                      # bottom histogram
             ],
             horizontal_spacing=0.02,
             vertical_spacing=0.02
         )
         # Link x of bottom histogram to main histogram
-        fig.update_xaxes(matches='x1', row=2, col=1)
+        fig.update_xaxes(
+            matches='x2', 
+            row=2, col=2, 
+            title_text=self.xlabel)
 
         # Link y of side histogram to main histogram
-        fig.update_yaxes(matches='y1', row=1, col=2)
+        fig.update_yaxes(
+            matches='y2',
+            row=1, col=1, 
+            title_text=self.ylabel
+        )
+
+        # Remove numbers on main histogram
+        fig.update_xaxes(showticklabels=False, ticks="outside", ticklen=6, row=1, col=2)
+        fig.update_yaxes(showticklabels=False, ticks="outside", ticklen=6, row=1, col=2)
 
         # Main 2D histogram
         fig.add_trace(go.Histogram2d(x=dataX, y=dataY, nbinsx=bins[0], nbinsy=bins[1],
-                                    colorscale="Viridis"), row=1, col=1)
+                                    colorscale="Viridis"), row=1, col=2)
 
         # Side histogram (Y marginal)
         fig.add_trace(go.Histogram(
@@ -83,7 +94,8 @@ class Histogram:
                 end=edgesY[-1],
                 size=edgesY[1] - edgesY[0]
             ),
-            marker_color="cornflowerblue"), row=1, col=2)
+            marker_color="cornflowerblue"), 
+            row=1, col=1)
 
         # Bottom histogram (X marginal)
         fig.add_trace(go.Histogram(
@@ -93,8 +105,9 @@ class Histogram:
                 end=edgesX[-1],
                 size=edgesX[1] - edgesX[0]
             ),
-            marker_color="cornflowerblue"), row=2, col=1)
+            marker_color="cornflowerblue"), row=2, col=2)
 
+        
         # Center of Mass line Side histogram
         fig.add_shape(
             type="line",
@@ -103,8 +116,8 @@ class Histogram:
             x1=self.histogramDataY.info["y"],
             y1=self.histogramDataY.info["centerOfMass"],
             line=dict(color="green", width=2),
-            xref="x2",
-            yref="y2"
+            xref="x1",
+            yref="y1"
         )
 
         # Center of Mass line Bottom histogram
@@ -127,8 +140,8 @@ class Histogram:
             x1=self.histogramDataY.info["y"],
             y1=self.histogramDataY.info["x2"],
             line=dict(color="orange", width=2),
-            xref="x2",
-            yref="y2"
+            xref="x1",
+            yref="y1"
         )
 
         fig.add_shape(
@@ -138,8 +151,8 @@ class Histogram:
             x1=self.histogramDataY.info["y"],
             y1=self.histogramDataY.info["x1"],
             line=dict(color="orange", width=2),
-            xref="x2",
-            yref="y2"
+            xref="x1",
+            yref="y1"
         )
 
         fig.add_shape(
@@ -149,8 +162,8 @@ class Histogram:
             x1=self.histogramDataY.info["y"],
             y1=self.histogramDataY.info["x2"],
             line=dict(color="orange", width=2),
-            xref="x2",
-            yref="y2"
+            xref="x1",
+            yref="y1"
         )
 
         
@@ -199,9 +212,11 @@ class Histogram:
         )
         # endregion
 
+        # region controls
         fig.update_layout(
             dragmode="pan"
         )
+        # endregion
 
         # Return embeddable HTML
         return fig.to_html(

@@ -52,3 +52,11 @@ You can find an example Metrix beamline under
 The application also works with any other beamline encoded in the **RayX `.rml` format**.
 Select the beamline and click on "send". 
 After a short amount of time the server will return the plots of the elements.
+
+## Plot Controls
+The plots are **fully interactive**. 
+**Click and drag** to pan the view. 
+Use the **mouse wheel** to zoom in and out centered on the cursor position. 
+**Double-click** anywhere inside the plot to reset the view. 
+The marginal histograms and main 2D histogram stay synchronized while zooming and panning, allowing for intuitive exploration of the beam distribution.
+Additionally, plotly allows you to easily download the plot.

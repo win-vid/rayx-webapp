@@ -20,3 +20,9 @@ def save_file(savePath, rml_file):
     
     path = os.path.join(savePath, rml_file.filename)
     rml_file.save(path)
+
+def get_cleaned_filename(filename):
+    """
+    Returns the cleaned filename. "_" is replaced with " " and the file extension is removed.
+    """
+    return filename.replace("_", " ").rsplit('.', 1)[0]

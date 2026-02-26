@@ -1,18 +1,15 @@
-import matplotlib
-matplotlib.use("Agg")
-
-import matplotlib.pyplot as plt
-import base64, io, numpy
-
-from mpl_toolkits.axes_grid1 import make_axes_locatable
+#region Imports
+import numpy as np
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from HistogramData import HistogramData
-
-# TODO: Currently the histogram can't decide which axis to correctly use
+# endregion
 
 class Histogram:
     """
     A 2DHistogram Class to handle all the plotting logic
-    for a single element for the RAYX Web App.
+    for a single element for the RAYX Web App. Plots are plotted
+    using Plotly.
     """
 
     def __init__(self, dataX, dataY, xLabel="No label", yLabel="No label", title="No title"):
@@ -22,8 +19,8 @@ class Histogram:
         self.histogramDataY = HistogramData(dataY)
 
         # Full width half maximum x and y
-        self.fwhmX = self.histogramDataX.fwhm
-        self.fwhmY = self.histogramDataY.fwhm
+        self.fwhmX = self.histogramDataX.info["fwhm"]
+        self.fwhmY = self.histogramDataY.info["fwhm"]
 
         # Histogram customization
         self.xlabel = xLabel
@@ -38,125 +35,196 @@ class Histogram:
                 f"{len(self.histogramDataX.data)} and {len(self.histogramDataY.data)}"
             )
 
-    def GetPlotDataBase64(self) -> str:
+        self.plot_html = self.GetPlotHTML()
+
+    def GetPlotHTML(self) -> str:
         """
-        Returns a base64 encoded string of the plot. This is used to send the plot to the client.
+        Returns interactive Plotly HTML.
         It assumes that this plot is a 2D histogram and constructs a 2D histogram.
         """
 
-        dataX = self.histogramDataX.data
-        dataY = self.histogramDataY.data
+        dataX = np.asarray(self.histogramDataX.data)
+        dataY = np.asarray(self.histogramDataY.data)
 
         # "FD" calculation TODO: Search for something that fits better in a 2D histogram
-        x = numpy.asarray(dataX)
-        y = numpy.asarray(dataY)
+        bins = [min(200, len(dataX)//20), min(200, len(dataY)//20)] # bins[0] = x, bins[1] = y
 
-        # TODO: I dont know if this is correct
-        bins = [min(200, len(dataX)//20), min(200, len(dataY)//20)]
+        countsX, edgesX = np.histogram(dataX, bins="fd")
+        countsY, edgesY = np.histogram(dataY, bins="fd")
 
-        # Construct 2D-Histogram
-        hist, xedges, yedges = numpy.histogram2d(
-            x, y,
-            bins=bins,       # TODO: Implement fd calculation
-            density=True
+        # region Plot
+        # Create subplots
+        fig = make_subplots(
+            rows=2, cols=2,
+            column_widths=[0.15, 0.85],  # main vs side
+            row_heights=[0.85, 0.15],    # main vs bottom
+            specs=[
+                [{"type": "histogram"}, {"type": "histogram2d"}],  # side + main 2d histogram
+                [None, {"type": "histogram"}]                      # bottom histogram
+            ],
+            horizontal_spacing=0.02,
+            vertical_spacing=0.02
+        )
+        # Link x of bottom histogram to main histogram
+        fig.update_xaxes(
+            matches='x2', 
+            row=2, col=2, 
+            title_text=self.xlabel)
+
+        # Link y of side histogram to main histogram
+        fig.update_yaxes(
+            matches='y2',
+            row=1, col=1, 
+            title_text=self.ylabel
         )
 
-        extent = [
-            xedges[0], xedges[-1],
-            yedges[0], yedges[-1]
-        ]
+        # Remove numbers on main histogram
+        fig.update_xaxes(showticklabels=False, ticks="outside", ticklen=6, row=1, col=2)
+        fig.update_yaxes(showticklabels=False, ticks="outside", ticklen=6, row=1, col=2)
 
-        fig, ax = plt.subplots()
+        # Main 2D histogram
+        fig.add_trace(go.Histogram2d(x=dataX, y=dataY, nbinsx=bins[0], nbinsy=bins[1],
+                                    colorscale="Viridis"), row=1, col=2)
 
-        h = ax.imshow(
-            hist.T,
-            extent=extent,
-            origin="lower",
-            aspect="auto",
-            cmap="viridis",
-            interpolation="nearest"
+        # Side histogram (Y marginal)
+        fig.add_trace(go.Histogram(
+            y=dataY, 
+            ybins=dict(
+                start=edgesY[0],
+                end=edgesY[-1],
+                size=edgesY[1] - edgesY[0]
+            ),
+            marker_color="cornflowerblue"), 
+            row=1, col=1)
+
+        # Bottom histogram (X marginal)
+        fig.add_trace(go.Histogram(
+            x=dataX, 
+            xbins=dict(
+                start=edgesX[0],
+                end=edgesX[-1],
+                size=edgesX[1] - edgesX[0]
+            ),
+            marker_color="cornflowerblue"), row=2, col=2)
+
+        
+        # Center of Mass line Side histogram
+        fig.add_shape(
+            type="line",
+            x0=0,
+            y0=self.histogramDataY.info["centerOfMass"],
+            x1=self.histogramDataY.info["y"],
+            y1=self.histogramDataY.info["centerOfMass"],
+            line=dict(color="green", width=2),
+            xref="x1",
+            yref="y1"
         )
 
-        # Add colorbar
-        fig.colorbar(h, ax=ax)
-
-        # Set Labels & Title
-        ax.set_xlabel(self.xlabel)
-        ax.set_ylabel(self.ylabel)
-        ax.set_title(self.title)
-
-        # Construct 1D-histograms for x- and y-axis
-        divider = make_axes_locatable(ax)
-
-        ax_hist_x = divider.append_axes(
-            "bottom",
-            pad=0.3,
-            size="15%",
-            sharex=ax
-        )
-        ax_hist_x.set_xlabel(self.xlabel)
-
-        ax_hist_y = divider.append_axes(
-            "left",
-            pad=0.3,
-            size="15%",
-            sharey=ax
-        )
-        ax_hist_y.set_ylabel(self.ylabel)
-
-        ax_hist_x.hist(dataX, bins="fd", histtype="step")
-        ax_hist_y.hist(dataY, bins="fd", histtype="step", orientation="horizontal")
-
-        # Draw FWHM-lines for Histogram X
-        ax_hist_x.plot(
-            [self.histogramDataX.x1, self.histogramDataX.x2],
-            [self.histogramDataX.y, self.histogramDataX.y],
-            '--', lw=1, color='red'
-        )
-        ax_hist_x.plot(
-            [self.histogramDataX.x1, self.histogramDataX.x1],
-            [0, self.histogramDataX.y],
-            '--', lw=1, color=self.line_color
-        )
-        ax_hist_x.plot(
-            [self.histogramDataX.x2, self.histogramDataX.x2],
-            [0, self.histogramDataX.y],
-            '--', lw=1, color=self.line_color
+        # Center of Mass line Bottom histogram
+        fig.add_shape(
+            type="line",
+            x0=self.histogramDataX.info["centerOfMass"],
+            y0=0,
+            x1=self.histogramDataX.info["centerOfMass"],
+            y1=self.histogramDataX.info["y"],
+            line=dict(color="green", width=2),
+            xref="x3",
+            yref="y3"
         )
 
-        # Draw FWHM-lines for Histogram Y
-        ax_hist_y.plot(
-            [self.histogramDataY.y, self.histogramDataY.y],
-            [self.histogramDataY.x1, self.histogramDataY.x2],
-            '--', lw=1, color='red'
+        # FWHM lines side histogram
+        fig.add_shape(
+            type="line",
+            x0=self.histogramDataY.info["y"],
+            y0=self.histogramDataY.info["x1"],
+            x1=self.histogramDataY.info["y"],
+            y1=self.histogramDataY.info["x2"],
+            line=dict(color="orange", width=2),
+            xref="x1",
+            yref="y1"
         )
 
-        ax_hist_y.hlines(
-            [self.histogramDataY.x1, self.histogramDataY.x2],
-            xmin=0,
-            xmax=self.histogramDataY.y,
-            colors=self.line_color,
-            linestyles='--',
-            linewidth=1
+        fig.add_shape(
+            type="line",
+            x0=0,
+            y0=self.histogramDataY.info["x1"],
+            x1=self.histogramDataY.info["y"],
+            y1=self.histogramDataY.info["x1"],
+            line=dict(color="orange", width=2),
+            xref="x1",
+            yref="y1"
         )
 
-        # Draw focus point axes for Histogram X & Y
-        ax_hist_x.plot(
-            [self.histogramDataX.focus, self.histogramDataX.focus],
-            [0, self.histogramDataX.focus_y],
-            color="green"
+        fig.add_shape(
+            type="line",
+            x0=0,
+            y0=self.histogramDataY.info["x2"],
+            x1=self.histogramDataY.info["y"],
+            y1=self.histogramDataY.info["x2"],
+            line=dict(color="orange", width=2),
+            xref="x1",
+            yref="y1"
         )
-        ax_hist_y.plot(
-            [0, self.histogramDataY.focus_y],
-            [self.histogramDataY.focus, self.histogramDataY.focus],
-            color="green"
+
+        
+
+        # FWHM lines bottom histogram
+        fig.add_shape(
+            type="line",
+            x0=self.histogramDataX.info["x1"],
+            y0=self.histogramDataX.info["y"],
+            x1=self.histogramDataX.info["x2"],
+            y1=self.histogramDataX.info["y"],
+            line=dict(color="orange", width=2),
+            xref="x3",
+            yref="y3"
         )
 
-        # Save figure to buffer
-        buf = io.BytesIO()
-        fig.savefig(buf, format="png", bbox_inches="tight")
-        buf.seek(0)
+        fig.add_shape(
+            type="line",
+            x0=self.histogramDataX.info["x1"],
+            y0=0,
+            x1=self.histogramDataX.info["x1"],
+            y1=self.histogramDataX.info["y"],
+            line=dict(color="orange", width=2),
+            xref="x3",
+            yref="y3"
+        )
 
-        plt.close(fig)
+        fig.add_shape(
+            type="line",
+            x0=self.histogramDataX.info["x2"],
+            y0=0,
+            x1=self.histogramDataX.info["x2"],
+            y1=self.histogramDataX.info["y"],
+            line=dict(color="orange", width=2),
+            xref="x3",
+            yref="y3"
+        )        
 
-        return base64.b64encode(buf.getvalue()).decode("ascii")
+        # Update layout
+        fig.update_layout(
+            height=800,
+            width=800,
+            title=self.title,
+            showlegend=False,
+            bargap=0.05
+        )
+        # endregion
+
+        # region controls
+        fig.update_layout(
+            dragmode="pan"
+        )
+        # endregion
+
+        # Return embeddable HTML
+        return fig.to_html(
+            full_html=False, 
+            include_plotlyjs="cdn",
+            config={
+                "scrollZoom": True,      # wheel zoom
+                "doubleClick": "reset",  # double-click resets
+                "displaylogo": False     # remove Plotly logo
+            }
+        )

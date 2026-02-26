@@ -1,7 +1,7 @@
 # RAYX Web App
 
-A lightweight Flask-based web application for visualizing <a href="https://github.com/hz-b/rayx">RAYX beamline simulations</a> .  
-The app allows users to upload an `.rml` file, trace the beamline using the RayX Python bindings, and interactively inspect the resulting ray distributions as **2D histograms with per-element breakdowns**.
+A lightweight Flask-based web application for visualizing <a href="https://github.com/hz-b/rayx">RayX beamline simulations</a> .  
+The app allows users to upload an `.rml` file, trace the beamline using the RayX Python bindings, and **interactively** inspect the resulting ray distributions as **2D histograms with per-element breakdowns**.
 
 ## Features
 
@@ -10,16 +10,16 @@ The app allows users to upload an `.rml` file, trace the beamline using the RayX
 - Generate:
   - 2D histograms
   - Marginal 1D histograms
-  - indicators
-- Render plots server-side using Matplotlib
-- Return plots as Base64-encoded PNGs for easy web embedding
+  - indicators (Full Width Half Maximum, Center of Mass)
+- Render plots server-side using plotly
+- Return plots as Base64-encoded string for easy web embedding
 
 ## Tech Stack
 
 - **Python 3**
 - **Flask** – web framework
 - **RayX** – beamline tracing engine
-- **Matplotlib** – plotting
+- **Plotly** – plotting
 - **NumPy** – numerical processing
 - **Jinja2** – templating
 
@@ -52,3 +52,11 @@ You can find an example Metrix beamline under
 The application also works with any other beamline encoded in the **RayX `.rml` format**.
 Select the beamline and click on "send". 
 After a short amount of time the server will return the plots of the elements.
+
+## Plot Controls
+The plots are **fully interactive**.<br>
+**Click and drag** to pan the view.<br> 
+Use the **mouse wheel** to zoom in and out centered on the cursor position.<br> 
+**Double-click** anywhere inside the plot to reset the view.<br> 
+The marginal histograms and main 2D histogram stay synchronized while zooming and panning, allowing for intuitive exploration of the beam distribution.<br>
+Additionally, plotly allows you to easily download the plot.

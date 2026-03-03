@@ -5,6 +5,8 @@
     --label-background-color: #333;
     --primary-color: #08477B;
     --primary-color-hover: #157EBF;
+    --primary-background-color: #fff;
+    --secondary-background-color: #F2F2F2;
 }
 
 * {
@@ -71,6 +73,43 @@ header {
     margin: 2rem;
 }
 
+main{
+    width: 100%;
+}
+
+.MainContent {
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+    background: var(--secondary-background-color);
+    border-radius: 10px;
+    width: 100%;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    align-content: center;
+}
+
+.ToolNavBar{
+    display: flex;
+    flex-flow: row;
+    align-items: start;
+    width: 100%;
+}
+
+.ToolNavBar button{
+    margin-left: 1rem;
+    background: var(--secondary-background-color);
+    color: var(--text-color)
+}
+
+.ToolNavBar button:hover{
+    cursor: pointer;
+    background: linear-gradient(to right, var(--primary-color), var(--primary-color-hover));
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
 h1 {
     font-size: 35px;
     color: var(--label-text-color);
@@ -104,6 +143,7 @@ form *{
 
 .DescriptionContainer{
     font-weight: bold;
+    align-items: center;
 }
 
 #rmlFile{

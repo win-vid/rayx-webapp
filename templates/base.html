@@ -21,10 +21,18 @@
     <div class = "ExceptionContainer">
         <p>{{exception}} </p>
     </div>
-    <div class = "DescriptionContainer">
-        <p>Upload an RML file to be traced by RayX</p>
-    </div>
-    {% block main %}
-    {% endblock %}
+    <main>
+        <div class="ToolNavBar">
+            <button>Upload RML</button>
+            <button>Beamline Builder</button>
+        </div>
+        <div class="MainContent">
+            <div class = "DescriptionContainer">
+                <p>Upload an RML file to be traced by RayX</p>
+            </div>
+            {% block main %}
+            {% endblock %}
+        </div>
+    </main>
 </body>
 </html>

@@ -3,7 +3,7 @@
 {% block main %}
         <div class = "FormContainer">
             <h2>Reflectivity</h2>
-            <form action="{{url_for('display_handle_post')}}" method="POST" enctype="multipart/form-data">
+            <form action="{{url_for('handle_post_reflectivity')}}" method="POST" enctype="multipart/form-data">
                 <input type="file" id="rmlFile" name="rmlFile" accept=".rml"> 
                 <button type="submit">Send</button>
             </form>
@@ -15,5 +15,6 @@
             "margin-top: 3rem;"
         >{{ RMLFileName }}</h2>
         <div class="PlotsContainer">
+            {{ plot_data | safe }}
         </div>
 {% endblock %}

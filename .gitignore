@@ -19,3 +19,5 @@ uploads/
 results/
 
 .ipynb_checkpoints/
+
+.idea/

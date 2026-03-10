@@ -236,13 +236,21 @@ def handle_post_reflectivity():
                     ignore_index=True
                 )
 
-                # Plot the reflectivity curve
-                plot_data = Curve(electric_fields["eV"], electric_fields["reflectivity"], xLabel="Energy (eV)", yLabel="Reflectivity", title="Reflectivity Curve").GetPlotHTML()
-
             except Exception as e:
                 traceback.print_exc()
                 return render_template("displayPy.html", exception=e)
       
+    electric_fields = electric_fields.sort_values("eV")  # ensure X axis is ordered
+    
+    # Plot the reflectivity curve
+    plot_data = Curve(
+        electric_fields["eV"], 
+        electric_fields["reflectivity"], 
+        xLabel="Energy (eV)", 
+        yLabel="Reflectivity", 
+        title="Reflectivity Curve"
+    ).GetPlotHTML()
+
     return render_template(
         "reflectivity.html", 
         RMLFileName=get_cleaned_filename(output_file_name), 

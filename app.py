@@ -309,15 +309,15 @@ def get_n_electric_field(df):
     try:
         # Calculate the electric field strength by summing the magnitudes of the electric field components
         magnitudes = np.sqrt(
-            df["electric_field_x"]**2 + 
-            df["electric_field_y"]**2 + 
-            df["electric_field_z"]**2
+            np.abs(df["electric_field_x"])**2 + 
+            np.abs(df["electric_field_y"])**2 + 
+            np.abs(df["electric_field_z"])**2
         )
     except Exception as e:
         traceback.print_exc()
         return 0
     
-    return magnitudes.sum()
+    return magnitudes.sum() # Source: Claude, Formerly this was magnitudes.sum()
 
 # Runs the server
 if __name__ == "__main__":

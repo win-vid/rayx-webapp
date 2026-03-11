@@ -31,8 +31,12 @@ class Curve:
         # Create figure
         fig = make_subplots(
             rows=2, cols=1,
-            row_heights=[0.8, 0.2],  # main vs table
-            vertical_spacing=0.05
+            row_heights=[0.6, 0.4],  # main vs table
+            vertical_spacing=0.1,
+            specs=[
+                [{"type": "xy"}],      # row 1: the curve
+                [{"type": "domain"}]   # row 2: the table
+            ]
         )
 
         # Add reflectivity curve
@@ -55,7 +59,7 @@ class Curve:
 
         # Layout
         fig.update_layout(
-            autosize=True,
+            height=800,
             width=800,
             title=self.title,
             xaxis_title=self.xlabel,

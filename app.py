@@ -118,6 +118,19 @@ def display_handle_post():
         plot_data=plot_data,
     )
 
+def generate_energy_beamlines(template_path, min_e=30, max_e=1000) -> list:
+    """Generates diffrent beamlines for a range of photon energies based on a template RML file."""
+
+    template_path = Path(template_path)
+    beamlines = []
+
+    for energy in range(min_e, max_e + 1):
+
+        bl = rayx.import_beamline(template_path)
+        bl.sources[0].energy = energy
+        beamlines.append(bl)
+    return beamlines
+
 # TODO: Refactor this function, it is almost identical to the one above, only difference is the template that is rendered at the end
 @app.route("/reflectivity/handle_post", methods=["POST"])
 def handle_post_reflectivity():
@@ -135,6 +148,8 @@ def handle_post_reflectivity():
     # ==============================
     if request.method == "POST":
         
+        beamlines = []
+
         #region File Handling
         # Check if the post request has the file part
         if "rmlFile" not in request.files:
@@ -154,7 +169,7 @@ def handle_post_reflectivity():
 
             rml_file.save(path)
 
-            generate_energy_rmls(path, UPLOAD_FOLDER)
+            beamlines = generate_energy_beamlines(path, min_e=30, max_e=100) # TODO: Change max_e to 1000, but for testing purposes it is set to 100 for now
         # endregion
 
         output_file_name = rml_file.filename
@@ -169,11 +184,11 @@ def handle_post_reflectivity():
 
         # region RML-File Loop
         # Loop through the generated rml files
-        for rml in os.listdir(path_to_energy_scan):
+        for beamline in beamlines:
             
             try:
                 # Trace beamline    
-                beamline = rayx.import_beamline(os.path.join(path_to_energy_scan, rml))
+                beamline = beamlines[beamlines.index(beamline)]
                 traced_beamline = beamline.trace()
 
                 # Create pandas dataframe

@@ -119,7 +119,7 @@ h1 {
 }
 
 label {
-    text-decoration: underline;
+    text-decoration: none;
     background: var(--label-background-color);
     color: var(--label-text-color);
     padding: 0.5rem;

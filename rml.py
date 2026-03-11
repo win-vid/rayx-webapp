@@ -23,3 +23,17 @@ def generate_energy_rmls(template_path, output_dir, min_e=30, max_e=100):
 
         out = output_dir / f"energy_{energy:04d}.rml"
         tree.write(out, encoding="UTF-8", xml_declaration=True)
+
+def set_value_in_rml(path, param_id, value):
+    tree = ET.parse(path)
+    root = tree.getroot()
+
+    # find parameter
+    param = root.find(".//param[@id='" + param_id + "']")
+
+    if param is None:
+        raise RuntimeError(f"Parameter {param_id} not found")
+
+    param.text = str(value)
+
+    tree.write(path, encoding="UTF-8", xml_declaration=True)

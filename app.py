@@ -5,6 +5,7 @@ import rayx, os, subprocess, traceback, io, base64, time
 from Histogram import Histogram
 from Curve import Curve
 from pathlib import Path
+from rml import *
 import pandas as pd
 import numpy as np
 from werkzeug.utils import secure_filename
@@ -133,7 +134,6 @@ def handle_post_reflectivity():
     # TODO: identical to the one in display_handle_post, only difference is the template that is rendered at the end
     # ==============================
     if request.method == "POST":
-        
         beamlines = []
 
         #region File Handling
@@ -155,7 +155,17 @@ def handle_post_reflectivity():
 
             rml_file.save(path)
 
-            beamlines = generate_energy_beamlines(path, min_e=30, max_e=1000) # TODO: Change max_e to 1000, but for testing purposes it is set to 100 for now
+            # Change params depending on POST request
+            set_value_in_rml(path, "grazingIncAngle", int(request.form["degree"]))
+            set_value_in_rml(path, "elementSubstrate", request.form["material"])
+            set_value_in_rml(path, "densitySubstrate", int(request.form["density"]))
+            set_value_in_rml(path, "roughnessSubstrate", int(request.form["roughness"]))
+
+            beamlines = generate_energy_beamlines(
+                path, 
+                min_e=int(request.form["min_e"]), 
+                max_e=int(request.form["max_e"])
+                ) # TODO: Change max_e to 1000, but for testing purposes it is set to 100 for now
         # endregion
 
         output_file_name = rml_file.filename
@@ -270,6 +280,12 @@ def handle_post_reflectivity():
         "reflectivity.html", 
         RMLFileName=get_cleaned_filename(output_file_name), 
         plot_data=plot_data,
+        min_e=request.form.get("min_e", 30),
+        max_e=request.form.get("max_e", 100),
+        degree=request.form.get("degree", 10),
+        density=request.form.get("density", 1),
+        roughness=request.form.get("roughness", 1),
+        material=request.form.get("material", "Si")
     )
 
 def get_beamline(rml_file) -> rayx.Rays:

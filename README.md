@@ -23,7 +23,7 @@ The app allows users to upload an `.rml` file, trace the beamline using the RayX
 - **NumPy** – numerical processing
 - **Jinja2** – templating
 
-## Getting started / Installation
+## Getting started / Installation & Setup
 
 ### 1. Clone the repository
 `git clone https://github.com/win-vid/rayx-webapp` <br>
@@ -38,7 +38,12 @@ This will:
 * Create a virtual environment
 * Install all dependencies defined by the project
 
-### 3. Running a local server
+### 3. Create a 'config.env' file
+The server uses sessions to temporarily store the users submitted rml-files. Therefore, you need to create a `config.env` file in the **root directory** containing the following content:
+
+``SECRET_KEY=some_secret_key``
+
+### 4. Running a local server
 
 Run the following to make the web app run locally:
 `uv run python app.py`

@@ -1,6 +1,7 @@
 # region Imports
-from flask import Flask, render_template, request, send_file, redirect, flash, url_for
+from flask import Flask, render_template, request, send_file, redirect, flash, url_for, session
 from FileOperations import *
+from dotenv import load_dotenv
 import rayx, os, subprocess, traceback, io, base64, time
 from Histogram import Histogram
 from Curve import Curve
@@ -20,6 +21,8 @@ UPLOAD_FOLDER.mkdir(exist_ok=True)
 output_file_name = ""
 
 # Configurations
+load_dotenv("config.env")
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1000 * 1000     # Limits rml_file size to 10 MB
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {"rml"}
@@ -146,29 +149,32 @@ def handle_post_reflectivity():
         # If the user does not select a file, the browser submits an
         # empty file without a filename. User is redirected to the home page.
         if rml_file.filename == '':
-            return render_template("displayPy.html")
+            try:
+                rml_file = filename = session.get("last_rml_filename") 
+                path = os.path.join(UPLOAD_FOLDER, filename)
+            except:
+                return redirect(request.url)
         
         # Check if file is allowed and save it, if it is
-        if rml_file and allowed_file(rml_file.filename):
+        elif rml_file and allowed_file(rml_file.filename):
             filename = secure_filename(rml_file.filename)
+            session["last_rml_filename"] = filename
             path = os.path.join(UPLOAD_FOLDER, filename)
-
             rml_file.save(path)
 
             # Change params depending on POST request
-            set_value_in_rml(path, "grazingIncAngle", int(request.form["degree"]))
-            set_value_in_rml(path, "elementSubstrate", request.form["material"])
-            set_value_in_rml(path, "densitySubstrate", int(request.form["density"]))
-            set_value_in_rml(path, "roughnessSubstrate", int(request.form["roughness"]))
-
-            beamlines = generate_energy_beamlines(
-                path, 
-                min_e=int(request.form["min_e"]), 
-                max_e=int(request.form["max_e"])
-                ) # TODO: Change max_e to 1000, but for testing purposes it is set to 100 for now
+        set_value_in_rml(path, "grazingIncAngle", int(request.form["angle"]))
+        set_value_in_rml(path, "elementSubstrate", request.form["material"])
+        set_value_in_rml(path, "densitySubstrate", int(request.form["density"]))
+        set_value_in_rml(path, "roughnessSubstrate", int(request.form["roughness"]))
+        beamlines = generate_energy_beamlines(
+            path, 
+            min_e=int(request.form["min_e"]), 
+            max_e=int(request.form["max_e"])
+        ) # TODO: Change max_e to 1000, but for testing purposes it is set to 100 for now
         # endregion
 
-        output_file_name = rml_file.filename
+        output_file_name = filename
 
         # Dataframe to hold the electric field strength (eV) for each element, used to plot the reflectivity curve
         columns = ["eV", "reflectivity"]
@@ -273,7 +279,8 @@ def handle_post_reflectivity():
         plot_data = ""
     finally:
         # Always clean up (delete constructed rml-files), even if plotting failed
-        os.remove(os.path.join(UPLOAD_FOLDER, output_file_name))
+        # os.remove(os.path.join(UPLOAD_FOLDER, output_file_name))
+        pass
     # endregion
 
     return render_template(
@@ -282,7 +289,7 @@ def handle_post_reflectivity():
         plot_data=plot_data,
         min_e=request.form.get("min_e", 30),
         max_e=request.form.get("max_e", 100),
-        degree=request.form.get("degree", 10),
+        angle=request.form.get("angle", 10),
         density=request.form.get("density", 1),
         roughness=request.form.get("roughness", 1),
         material=request.form.get("material", "Si")
@@ -337,7 +344,10 @@ def get_n_electric_field(df):
 def generate_energy_beamlines(template_path, min_e=30, max_e=1000) -> list:
     """Generates diffrent beamlines for a range of photon energies based on a template RML file."""
 
-    print(template_path)
+    # Check if min_e and max_e are valid
+    if min_e >= max_e or max_e <= min_e:
+        print("Invalid energy range")
+        return []
 
     template_path = template_path
     beamlines = []

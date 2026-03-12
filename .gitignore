@@ -21,3 +21,5 @@ results/
 .ipynb_checkpoints/
 
 .idea/
+
+*.env

@@ -21,7 +21,7 @@ UPLOAD_FOLDER.mkdir(exist_ok=True)
 output_file_name = ""
 
 # Configurations
-load_dotenv("config.env")
+load_dotenv("config.env")                               # Load environment variables
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1000 * 1000     # Limits rml_file size to 10 MB
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -134,66 +134,75 @@ def handle_post_reflectivity():
     The curve is then plotted on the website. 
     """
 
-    # TODO: identical to the one in display_handle_post, only difference is the template that is rendered at the end
-    # ==============================
     if request.method == "POST":
+
+        # Create a list of all the beamlines
         beamlines = []
 
-        #region File Handling
+        #region POST Handling
+
         # Check if the post request has the file part
         if "rmlFile" not in request.files:
             return redirect(request.url)
 
         rml_file = request.files["rmlFile"]
 
-        # If the user does not select a file, the browser submits an
-        # empty file without a filename. User is redirected to the home page.
+        # If the user submits nothing, the server defaults to the last uploaded file, if one exists
+        # If there is no last uploaded file, the user is redirected to the reflectivity page
         if rml_file.filename == '':
             try:
                 rml_file = filename = session.get("last_rml_filename") 
                 path = os.path.join(UPLOAD_FOLDER, filename)
             except:
-                return redirect(request.url)
+                return render_template("reflectivity.html") 
         
-        # Check if file is allowed and save it, if it is
+        # Else if the user submits a file, check if file is allowed and save it, if it is
         elif rml_file and allowed_file(rml_file.filename):
             filename = secure_filename(rml_file.filename)
             session["last_rml_filename"] = filename
             path = os.path.join(UPLOAD_FOLDER, filename)
             rml_file.save(path)
+        # endregion
 
-            # Change params depending on POST request
-        set_value_in_rml(path, "grazingIncAngle", int(request.form["angle"]))
-        set_value_in_rml(path, "elementSubstrate", request.form["material"])
-        set_value_in_rml(path, "densitySubstrate", int(request.form["density"]))
-        set_value_in_rml(path, "roughnessSubstrate", int(request.form["roughness"]))
+        # region RML-File Handling
+
+        # Change and store params depending on POST request
+        angle = int(request.form["angle"])
+        material = request.form["material"]
+        density = int(request.form["density"])
+        roughness = int(request.form["roughness"])
+
+        set_value_in_rml(path, "grazingIncAngle", angle)
+        set_value_in_rml(path, "elementSubstrate", material)
+        set_value_in_rml(path, "densitySubstrate", density)
+        set_value_in_rml(path, "roughnessSubstrate", roughness)
+
         beamlines = generate_energy_beamlines(
             path, 
             min_e=int(request.form["min_e"]), 
             max_e=int(request.form["max_e"])
-        ) # TODO: Change max_e to 1000, but for testing purposes it is set to 100 for now
+        )
         # endregion
 
         output_file_name = filename
 
-        # Dataframe to hold the electric field strength (eV) for each element, used to plot the reflectivity curve
+        # Dataframe to hold the electric field strength (eV) for each element as well as the reflectivity used to plot the reflectivity curve
         columns = ["eV", "reflectivity"]
         electric_fields = pd.DataFrame(columns=columns)
-        
-        path_to_energy_scan = os.path.join(UPLOAD_FOLDER, "energy_scan/")
 
+        # Variable to hold the plot data, will be passed to the template
         plot_data = ""
 
-        # region RML-File Loop
-        # Loop through the generated rml files
+        # region Beamline Tracing
+        # Loop through the generated rml file
         for beamline in beamlines:
             
             try:
-                # Trace beamline    
+                # Trace beamline using RAYX depending on the index    
                 beamline = beamlines[beamlines.index(beamline)]
                 traced_beamline = beamline.trace()
 
-                # Create pandas dataframe
+                # Create a pandas dataframe for the traced beamline
                 columns = [
                     "direction_x", "direction_y", "direction_z",
                     "electric_field_x", "electric_field_y", "electric_field_z",
@@ -205,17 +214,9 @@ def handle_post_reflectivity():
 
                 df = pd.DataFrame({col: getattr(traced_beamline, col) for col in columns})
 
-                # Remove file from server
-                # remove_file(path_to_energy_scan, rml)
-
-                # =====================
-                # identical until here
-
-                # Plot the traced beamline
                 last_element = df["last_element_id"]
 
-
-                # TODO: Put Below in an for each loop for every rml. This needs to happen to each rml
+                # region Reflectivity Calculations
                 electric_field_source = 0
                 electric_field_mirror = 0
 
@@ -224,6 +225,8 @@ def handle_post_reflectivity():
                     mask = last_element == source
 
                     electric_field_source = get_n_electric_field(df[mask])
+
+                # TODO: Add a check to validate that the elements is a mirror
 
                 # If the beamline has only one element or more than two, redirect to avoid errors
                 if len(beamline.elements) <= 1 or len(beamline.elements) > 2:
@@ -255,13 +258,14 @@ def handle_post_reflectivity():
                     ],
                     ignore_index=True
                 )
+                # endregion
 
             except Exception as e:
                 traceback.print_exc()
                 return render_template("displayPy.html", exception=e)
-        # endregion
-
+    
     electric_fields = electric_fields.sort_values("eV")
+    # endregion
 
     # region Plotting & Cleanup
     try:
@@ -271,7 +275,7 @@ def handle_post_reflectivity():
             electric_fields["reflectivity"],
             xLabel="Photon Energy (eV)",
             yLabel="Reflectivity",
-            title="Reflectivity Curve"
+            title=f"Reflectivity Curve, {material}, Density = {density}, Angle = {angle}°"
         ).GetPlotHTML()
     except Exception as e:
         # If plotting fails, print the error and return an empty plot.
@@ -279,7 +283,7 @@ def handle_post_reflectivity():
         plot_data = ""
     finally:
         # Always clean up (delete constructed rml-files), even if plotting failed
-        # os.remove(os.path.join(UPLOAD_FOLDER, output_file_name))
+        # TODO: Delete rml-file when connection gets terminated
         pass
     # endregion
 

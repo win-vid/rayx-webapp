@@ -48,7 +48,7 @@ The server uses sessions to temporarily store the users submitted rml-files. The
 Run the following to make the web app run locally:
 `uv run python app.py`
 
-You can then access the web app by entering the following address into your web-browser:
+You can then access the web app by entering the following address into your web-browser: <br>
 `http://localhost:5000`
 
 ## Tracing beamlines

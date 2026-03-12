@@ -10,7 +10,7 @@
                 <label for="max_e">To eV:</label>
                 <input type="number" id="max_e" value="{{max_e or 100}}"name="max_e" min="0" max="1000">     <!--TODO: Change to 1000-->
                 <label for="angle">Angle:</label>
-                <input type="number" id="angle" value="{{angle or 10}}" name="angle" min="0" max="360">
+                <input type="number" id="angle" value="{{angle or 10}}" name="angle" min="-360" max="360">
                 <label for="material">Material:</label>
                 {% set materials = ["Ac","Ag","Al","Ar","As","At","Au","B","Ba","Be","Bi","Br","C","Ca","Cd","Ce","Cl","Co","Cr","Cs","Cu","Dy","Er","Eu","F","Fe","Fr","Ga","Gd","Ge","H","He","Hf","Hg","Ho","I","In","Ir","K","Kr","La","Li","Lu","Mg","Mn","Mo","N","Na","Nb","Nd","Ne","Ni","O","Os","P","Pa","Pb","Pd","Pm","Po","Pr","Pt","Ra","Rb","Re","Rh","Rn","Ru","S","Sb","Sc","Se","Si","Sm","Sn","Sr","Ta","Tb","Tc","Te","Th","Ti","Tl","Tm","U","V","W","Xe","Y","Yb","Zn","Zr"] %}
                 <select id="material" name="material">

@@ -1,33 +1,43 @@
 {% extends "base.html" %}
 
 {% block main %}
-        <div class = "FormContainer">
-            <form action="{{url_for('display_handle_post')}}" method="POST" enctype="multipart/form-data">
-                <input type="file" id="rmlFile" name="rmlFile" accept=".rml"> 
-                <button type="submit">Send</button>
-            </form>
+        <div class="ToolNavBar">
+            <a href="{{ url_for('index') }}" style="border-bottom: solid 3px var(--primary-color);">Upload RML</a>
+            <a href="{{ url_for('reflectivity') }}">Reflectivity</a>
+            <a class="ToolNavBarButton">Beamline Builder</button>
         </div>
-        {% block received %}
-        {% endblock %}
-        <hr>
-        <h2 style=
-            "margin-top: 3rem;"
-        >{{ RMLFileName }}</h2>
-        <div class="PlotsContainer">
-            {% for plot in plot_data %}
-                <div class="Plot">
-                    <div>{{ plot.plot_html | safe }}</div>
-                    <div class="PlotInfo">
-                        <p>
-                            <b><u>FWHM</u></b><br>
-                            X: {{ plot.fwhmX }}<br>
-                            Y: {{ plot.fwhmY }}<br>
-                            <b><u>Center of mass</u></b><br>
-                            X: {{ plot.histogramDataX.info["centerOfMass"] }} <br>
-                            Y: {{ plot.histogramDataY.info["centerOfMass"]}}
-                        </p>
+        <div class="MainContent">
+            <div class = "DescriptionContainer">
+                <p>Upload an RML file to be traced by RayX</p>
+            </div>
+            <div class = "FormContainer">
+                <form action="{{url_for('display_handle_post')}}" method="POST" enctype="multipart/form-data">
+                    <input type="file" id="rmlFile" name="rmlFile" accept=".rml"> 
+                    <button type="submit">Send</button>
+                </form>
+            </div>
+            {% block received %}
+            {% endblock %}
+            <hr>
+            <h2 style=
+                "margin-top: 3rem;"
+            >{{ RMLFileName }}</h2>
+            <div class="PlotsContainer">
+                {% for plot in plot_data %}
+                    <div class="Plot">
+                        <div>{{ plot.plot_html | safe }}</div>
+                        <div class="PlotInfo">
+                            <p>
+                                <b><u>FWHM</u></b><br>
+                                X: {{ plot.fwhmX }}<br>
+                                Y: {{ plot.fwhmY }}<br>
+                                <b><u>Center of mass</u></b><br>
+                                X: {{ plot.histogramDataX.info["centerOfMass"] }} <br>
+                                Y: {{ plot.histogramDataY.info["centerOfMass"]}}
+                            </p>
+                        </div>
                     </div>
-                </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
 {% endblock %}

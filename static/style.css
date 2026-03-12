@@ -85,7 +85,7 @@ main{
     padding-top: 3rem;
     padding-bottom: 3rem;
     background: var(--secondary-background-color);
-    border-radius: 10px;
+    border-radius: 5px;
     width: 100%;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     align-content: center;
@@ -98,18 +98,22 @@ main{
     width: 100%;
 }
 
-.ToolNavBar button{
+.ToolNavBar a{
     margin-left: 1rem;
     background: var(--secondary-background-color);
     color: var(--text-color);
+    border-radius: 10px;
     border-bottom-right-radius: 0px;
     border-bottom-left-radius: 0px;
+    text-decoration: none;
+    padding: 0.5rem;
 }
 
-.ToolNavBar button:hover{
+.ToolNavBar a:hover{
     cursor: pointer;
     background: linear-gradient(to right, var(--primary-color), var(--primary-color-hover));
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    color: var(--label-text-color);
 }
 
 h1 {

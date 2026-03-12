@@ -1,6 +1,15 @@
 {% extends "base.html" %}
 
 {% block main %}
+        <div class="ToolNavBar">
+            <a href="{{ url_for('index') }}">Upload RML</a>
+            <a href="{{ url_for('reflectivity') }}"style="border-bottom: solid 3px var(--primary-color);">Reflectivity</a>
+            <a class="ToolNavBarButton">Beamline Builder</button>
+        </div>
+        <div class="MainContent">
+            <div class = "DescriptionContainer">
+                <p>Upload an RML file to be traced by RayX</p>
+            </div>
         <div class = "FormContainer">
             <h2>Reflectivity</h2>
             <form action="{{url_for('handle_post_reflectivity')}}" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
@@ -33,6 +42,7 @@
         >{{ RMLFileName }}</h2>
         <div class="PlotsContainer">
             {{ plot_data | safe }}
+        </div>
         </div>
 
         <script>

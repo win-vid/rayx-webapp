@@ -22,18 +22,8 @@
         <p>{{exception}} </p>
     </div>
     <main>
-        <div class="ToolNavBar">
-            <button style="border-bottom: solid 3px var(--primary-color);">Upload RML</button>
-            <button>Reflectivity</button>
-            <button>Beamline Builder</button>
-        </div>
-        <div class="MainContent">
-            <div class = "DescriptionContainer">
-                <p>Upload an RML file to be traced by RayX</p>
-            </div>
-            {% block main %}
-            {% endblock %}
-        </div>
+        {% block main %}
+        {% endblock %}
     </main>
 </body>
 </html>

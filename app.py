@@ -30,7 +30,11 @@ ALLOWED_EXTENSIONS = {"rml"}
 # Runs the app and starts the server
 @app.route("/",)
 def index():
-    return render_template("reflectivity.html")     # TODO: Standard would be "display.py"
+    return render_template("displayPy.html")     # TODO: Standard would be "display.py"
+
+@app.route("/reflectivity")
+def reflectivity():
+    return render_template("reflectivity.html")
 
 # Handles the post on the server, displays the content of the rml file on the site
 @app.route("/display/handle_post", methods=["POST"])

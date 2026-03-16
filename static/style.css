@@ -148,12 +148,22 @@ form *{
 }
 
 .FormContainer {
+    display: flex;
+    flex-flow: column;
     position: sticky;
     top: 0;
     z-index: 1000;
     background: var(--secondary-background-color);
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     border-radius: 5px;
+    align-items: center;
+}
+
+.FormContainer form{
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    align-content: center;
 }
 
 .DescriptionContainer{
@@ -170,6 +180,12 @@ form *{
     cursor: pointer;
     background: #156bb1;
     color: #fff;    
+}
+
+.ReflectivitySettingsContainer {
+    border: solid 1px var(--primary-color);
+    border-radius: 5px;
+    padding: 1rem;
 }
 
 .Plot {

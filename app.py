@@ -25,12 +25,20 @@ load_dotenv("config.env")                               # Load environment varia
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")      # Secret Key is used to secure the session and temporarily store user form data
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1000 * 1000     # Limits rml_file size to 10 MB
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER             # Folder where rml files are stored during session
-MATERIALS = [
-    "Ac","Ag","Al","Ar","As","At","Au","B","Ba","Be","Bi","Br","C","Ca","Cd","Ce","Cl","Co","Cr","Cs","Cu","Dy","Er","Eu","F","Fe",
-    "Fr","Ga","Gd","Ge","H","He","Hf","Hg","Ho","I","In","Ir","K","Kr","La","Li","Lu","Mg","Mn","Mo","N","Na","Nb","Nd","Ne","Ni",
-    "O","Os","P","Pa","Pb","Pd","Pm","Po","Pr","Pt","Ra","Rb","Re","Rh","Rn","Ru","S","Sb","Sc","Se","Si","Sm","Sn","Sr","Ta","Tb",
-    "Tc","Te","Th","Ti","Tl","Tm","U","V","W","Xe","Y","Yb","Zn","Zr"
-]
+MATERIALS = {
+    "H": 0.0000899, "He": 0.0001785,
+    "Li": 0.534, "Be": 1.85, "B": 2.34, "C": 2.267, "N": 0.0012506, "O": 0.001429, "F": 0.001696, "Ne": 0.0009,
+    "Na": 0.97, "Mg": 1.74, "Al": 2.70, "Si": 2.33, "P": 1.82, "S": 2.07, "Cl": 0.0032, "Ar": 0.00178,
+    "K": 0.86, "Ca": 1.55, "Sc": 2.99, "Ti": 4.51, "V": 6.0, "Cr": 7.15, "Mn": 7.3, "Fe": 7.87, "Co": 8.86, "Ni": 8.90,
+    "Cu": 8.96, "Zn": 7.14, "Ga": 5.91, "Ge": 5.32, "As": 5.78, "Se": 4.82, "Br": 3.12, "Kr": 0.0037,
+    "Rb": 1.53, "Sr": 2.64, "Y": 4.47, "Zr": 6.52, "Nb": 8.57, "Mo": 10.2, "Tc": 11.0, "Ru": 12.1, "Rh": 12.4, "Pd": 12.0,
+    "Ag": 10.49, "Cd": 8.65, "In": 7.31, "Sn": 7.26, "Sb": 6.68, "Te": 6.24, "I": 4.93, "Xe": 0.0059,
+    "Cs": 1.93, "Ba": 3.59, "La": 6.15, "Ce": 6.77, "Pr": 6.77, "Nd": 7.01, "Pm": 7.26, "Sm": 7.52, "Eu": 5.24,
+    "Gd": 7.90, "Tb": 8.23, "Dy": 8.55, "Ho": 8.80, "Er": 9.07, "Tm": 9.32, "Yb": 6.90, "Lu": 9.84,
+    "Hf": 13.3, "Ta": 16.4, "W": 19.3, "Re": 20.8, "Os": 22.6, "Ir": 22.5, "Pt": 21.45, "Au": 19.32,
+    "Hg": 13.55, "Tl": 11.85, "Pb": 11.34, "Bi": 9.78, "Po": 9.20, "At": 7.0, "Rn": 0.0097,
+    "Fr": 1.87, "Ra": 5.5, "Ac": 10.07, "Th": 11.7, "Pa": 15.4, "U": 19.1
+}
 ALLOWED_EXTENSIONS = {"rml"}
 # endregion
 
@@ -208,6 +216,11 @@ def handle_post_reflectivity():
             return render_template("reflectivity.html")
         
         density = int(request.form["density"])
+
+        # If density is -1, set it to the default density
+        if density < 0:
+            density = MATERIALS[material]
+        
         roughness = int(request.form["roughness"])
 
         set_value_in_rml(path, "grazingIncAngle", angle)

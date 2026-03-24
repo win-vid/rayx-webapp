@@ -52,7 +52,7 @@ class Curve:
         # Add data table
         fig.add_trace(
             go.Table(
-                header=dict(values=["Photon Energy", "Reflectivity"]),
+                header=dict(values=["Photon Energy (eV)", "Reflectivity"]),
                 cells=dict(values=[self.curveDataX, self.curveDataY])
             ), row=2, col=1
         )

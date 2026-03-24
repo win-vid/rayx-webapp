@@ -20,26 +20,51 @@ UPLOAD_FOLDER.mkdir(exist_ok=True)
 
 output_file_name = ""
 
-# Configurations
-load_dotenv("config.env")                               # Load environment variables
-app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+# region Configurations
+load_dotenv("config.env")                               # Load environment variables, if does not exist, create one
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")      # Secret Key is used to secure the session and temporarily store user form data
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1000 * 1000     # Limits rml_file size to 10 MB
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER             # Folder where rml files are stored during session
+MATERIALS = [
+    "Ac","Ag","Al","Ar","As","At","Au","B","Ba","Be","Bi","Br","C","Ca","Cd","Ce","Cl","Co","Cr","Cs","Cu","Dy","Er","Eu","F","Fe",
+    "Fr","Ga","Gd","Ge","H","He","Hf","Hg","Ho","I","In","Ir","K","Kr","La","Li","Lu","Mg","Mn","Mo","N","Na","Nb","Nd","Ne","Ni",
+    "O","Os","P","Pa","Pb","Pd","Pm","Po","Pr","Pt","Ra","Rb","Re","Rh","Rn","Ru","S","Sb","Sc","Se","Si","Sm","Sn","Sr","Ta","Tb",
+    "Tc","Te","Th","Ti","Tl","Tm","U","V","W","Xe","Y","Yb","Zn","Zr"
+]
 ALLOWED_EXTENSIONS = {"rml"}
+# endregion
 
 # Runs the app and starts the server
 @app.route("/",)
 def index():
-    return render_template("displayPy.html")     # TODO: Standard would be "display.py"
+    return render_template("displayPy.html")
 
 @app.route("/reflectivity")
 def reflectivity():
+    """
+    This function renders the web page for the "Reflectivity" tool.
+
+    The "Reflectivity" tool is used to visualize the reflectivity of a material at a given angle and energy range.
+
+    Returns:
+        render_template: The rendered web page.
+    """
     return render_template("reflectivity.html")
 
+# region Standard Beamline Tracing
 # Handles the post on the server, displays the content of the rml file on the site
 @app.route("/display/handle_post", methods=["POST"])
 def display_handle_post():
-
+    """
+    This function handles the post request from the displayPy.html page.
+    
+    It receives an rml file from the user, traces the beamline,
+    and then plots the beamline distribution in a series of 2D histograms.
+    
+    Returns:
+        render_template: The rendered web page.
+    """
+    
     plot_data = []
 
     t = time.time()
@@ -66,7 +91,7 @@ def display_handle_post():
         output_file_name = rml_file.filename
         
         try:
-            # Trace beamline    
+            # Trace beamline
             beamline = get_beamline(rml_file)
             traced_beamline = beamline.trace()
 
@@ -125,6 +150,10 @@ def display_handle_post():
         plot_data=plot_data,
     )
 
+# endregion
+
+# region Reflectivity
+
 # TODO: Refactor this function, it is almost identical to the one above, only difference is the template that is rendered at the end
 @app.route("/reflectivity/handle_post", methods=["POST"])
 def handle_post_reflectivity():
@@ -172,7 +201,12 @@ def handle_post_reflectivity():
 
         # Change and store params depending on POST request
         angle = int(request.form["angle"])
-        material = request.form["material"]
+        material = request.form.get("material", type=str)
+        
+        # Flag for unallowed materials
+        if material == "" or isMaterialAllowed(material) == False:
+            return render_template("reflectivity.html")
+        
         density = int(request.form["density"])
         roughness = int(request.form["roughness"])
 
@@ -303,6 +337,8 @@ def handle_post_reflectivity():
         material=request.form.get("material", "Si")
     )
 
+# endregion
+
 def get_beamline(rml_file) -> rayx.Rays:
     """
     Takes an RML file and returns a traced beamline using the RayX python package.
@@ -326,6 +362,7 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+# region Math
 # TODO: Check out what happens if return returns return magnitudes.sum() or return magnitudes.mean() or return np.sqrt((magnitudes**2).mean())
 def get_n_electric_field(df):
     """
@@ -366,6 +403,13 @@ def generate_energy_beamlines(template_path, min_e=30, max_e=1000) -> list:
         bl.sources[0].energy = energy
         beamlines.append(bl)
     return beamlines
+
+# endregion
+
+def isMaterialAllowed(material) -> bool:
+    
+
+    return material in MATERIALS
 
 # Runs the server
 if __name__ == "__main__":

@@ -65,3 +65,18 @@ Use the **mouse wheel** to zoom in and out centered on the cursor position.<br>
 **Double-click** anywhere inside the plot to reset the view.<br> 
 The marginal histograms and main 2D histogram stay synchronized while zooming and panning, allowing for intuitive exploration of the beam distribution.<br>
 Additionally, plotly allows you to easily download the plot.
+
+## Creating a Docker Container
+Requirements
+* either **Docker** or **Podman**
+* for better management also install **Docker Desktop** or **Podman Desktop**
+
+Run the following (this also works with Docker) to build the container:
+
+``podman build . -t rayx-web-app``
+
+Afterwards run the following to run the container on port 5000:
+
+``podman run -it rayx-web-app:latest -p 5000:5000``
+
+You can change the ip-address or the port-number the web-app will run on inside the `Dockerfile`. 

@@ -216,7 +216,7 @@ def handle_post_reflectivity():
         if material == "" or isMaterialAllowed(material) == False:
             return render_template("reflectivity.html")
         
-        density = int(request.form["density"])
+        density = float(request.form["density"])
 
         # If density is -1, set it to the default density
         if density < 0:
@@ -227,12 +227,13 @@ def handle_post_reflectivity():
         angle_rad = math.radians(angle)
 
         direction = {
-            "x": math.sin(angle_rad),
+            "x": math.cos(angle_rad),
             "y": 0.0,
-            "z": math.cos(angle_rad),
+            "z": math.sin(angle_rad),
         }
 
-        set_value_in_rml(path, "worldYdirection", direction)
+        set_value_in_rml(path, "worldXdirection", direction)
+        set_value_in_rml(path, "grazingIncAngle", angle_rad)
         set_value_in_rml(path, "elementSubstrate", material)
         set_value_in_rml(path, "densitySubstrate", density)
         set_value_in_rml(path, "roughnessSubstrate", roughness)
@@ -296,10 +297,9 @@ def handle_post_reflectivity():
                     index = 1
                     try:
                         # Get the electric field strength for the mirror
-                        for element in range(len(beamline.elements)):
-                            mask = last_element == element + len(beamline.sources)
+                        mask = last_element == len(beamline.sources)
 
-                            electric_field_mirror = get_n_electric_field(df[mask])
+                        electric_field_mirror = get_n_electric_field(df[mask])
                     except:
                         print("Index out of range" + str(index))
                         pass
@@ -318,6 +318,18 @@ def handle_post_reflectivity():
                     ],
                     ignore_index=True
                 )
+                # endregion
+
+                # region Reflectivity Debugging
+                mask_source = last_element == 0
+                mask_mirror = last_element == len(beamline.sources)
+
+                print(f"eV={beamline.sources[0].energy:.1f} | "
+                    f"source_rays={mask_source.sum()} | "
+                    f"mirror_rays={mask_mirror.sum()} | "
+                    f"ratio={mask_mirror.sum()/mask_source.sum():.3f} | "
+                    f"reflectivity={reflectivity:.4f}")
+
                 # endregion
 
             except Exception as e:
@@ -346,7 +358,7 @@ def handle_post_reflectivity():
         # TODO: Delete rml-file when connection gets terminated
         pass
     # endregion
-
+    
     return render_template(
         "reflectivity.html", 
         RMLFileName=get_cleaned_filename(output_file_name), 
@@ -406,7 +418,7 @@ def get_n_electric_field(df):
         traceback.print_exc()
         return 0
     
-    return magnitudes.sum() # Source: Claude, Formerly this was magnitudes.sum()
+    return magnitudes.mean() # Source: Claude, Formerly this was magnitudes.sum()
 
 def generate_energy_beamlines(template_path, min_e=30, max_e=1000) -> list:
     """Generates diffrent beamlines for a range of photon energies based on a template RML file."""

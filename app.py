@@ -231,11 +231,18 @@ def handle_post_reflectivity():
             "z": math.sin(angle_rad),
         }
 
+        linearPol_0 = float(request.form["linearPol_0"])
+        linearPol_45 = float(request.form["linearPol_45"])
+        circularPol = float(request.form["circularPol"])
+
         set_value_in_rml(path, "worldXdirection", direction)
         set_value_in_rml(path, "grazingIncAngle", angle)
         set_value_in_rml(path, "elementSubstrate", material)
         set_value_in_rml(path, "densitySubstrate", density)
         set_value_in_rml(path, "roughnessSubstrate", roughness)
+        set_value_in_rml(path, "linearPol_0", linearPol_0)
+        set_value_in_rml(path, "linearPol_45", linearPol_45)
+        set_value_in_rml(path, "circularPol", circularPol)
 
         beamlines = generate_energy_beamlines(
             path, 
@@ -362,7 +369,10 @@ def handle_post_reflectivity():
         angle=request.form.get("angle", 10),
         density=request.form.get("density", 1),
         roughness=request.form.get("roughness", 1),
-        material=request.form.get("material", "Si")
+        material=request.form.get("material", "Si"),
+        linearPol_0=request.form.get("linearPol_0", 0),
+        linearPol_45=request.form.get("linearPol_45", 0),
+        circularPol=request.form.get("circularPol", 0)
     )
 
 # endregion

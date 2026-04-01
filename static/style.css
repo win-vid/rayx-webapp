@@ -185,6 +185,8 @@ form *{
 }
 
 .ReflectivitySettingsContainer {
+    display: flex;
+    flex-wrap: wrap;
     border: solid 1px var(--primary-color);
     border-radius: 5px;
     padding: 0.3rem;

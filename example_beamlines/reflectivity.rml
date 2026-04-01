@@ -104,7 +104,7 @@
    <param id="worldPosition" enabled="F">
     <x>0.0000000000000000</x>
     <y>0.0000000000000000</y>
-    <z>100.0000000000000000</z>
+    <z>1.0000000000000000</z>
    </param>
    <param id="worldXdirection" enabled="F">
     <x>1.0000000000000000</x>

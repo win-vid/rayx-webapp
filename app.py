@@ -167,6 +167,11 @@ def handle_post_reflectivity():
         # Create a list of all the beamlines
         beamlines = []
 
+        incoming_rays = []
+        outgoing = []
+        incoming_efields = []
+        outgoing_efields = []
+
         #region POST Handling
 
         # Check if the post request has the file part
@@ -222,6 +227,7 @@ def handle_post_reflectivity():
         linearPol_45 = float(request.form["linearPol_45"])
         circularPol = float(request.form["circularPol"])
 
+        # Overwrite the values in the rml file
         set_value_in_rml(path, "worldXdirection", direction)
         set_value_in_rml(path, "grazingIncAngle", angle)
         set_value_in_rml(path, "elementSubstrate", material)
@@ -279,18 +285,35 @@ def handle_post_reflectivity():
                     mask = last_element == source
 
                     electric_field_source = get_n_electric_field(df[mask])
+                    incoming_rays.append(electric_field_source * 1000)
+
+                    # Get the electric field strength for the mirror
+                    src_df = df[mask]
+                    incoming_efields.append({
+                        "ex": float(np.abs(src_df["electric_field_x"].mean())),
+                        "ey": float(np.abs(src_df["electric_field_y"].mean())),
+                        "ez": float(np.abs(src_df["electric_field_z"].mean())),
+                    })
+
 
                 # TODO: Add a check to validate that the elements is a mirror
                 print(f"Sources: {len(beamline.sources)}, Elements: {len(beamline.elements)}")
                 for e in beamline.elements:
                     print(f"  - {e.name}")
                 # If the beamline has only one element or more than two, redirect to avoid errors
-                # ✅ Remove the >2 restriction, just ensure mirror exists
                 if len(beamline.elements) < 1:
                     print("No elements in beamline")
                 else:
                     mask = last_element == len(beamline.sources)  # first element after source = mirror
                     electric_field_mirror = get_n_electric_field(df[mask])
+                    outgoing.append(electric_field_mirror * 1000)
+
+                    mir_df = df[mask]
+                    outgoing_efields.append({
+                        "ex": float(np.abs(mir_df["electric_field_x"].mean())),
+                        "ey": float(np.abs(mir_df["electric_field_y"].mean())),
+                        "ez": float(np.abs(mir_df["electric_field_z"].mean())),
+                    })
                     
                 # Calculate the reflectivity by dividing the electric field strength of the mirror by that of the source
                 reflectivity = np.abs(electric_field_mirror / electric_field_source)
@@ -335,7 +358,11 @@ def handle_post_reflectivity():
             electric_fields["reflectivity"],
             xLabel="Photon Energy (eV)",
             yLabel="Reflectivity",
-            title=f"Reflectivity Curve, {material}, Density = {density}, Angle = {angle}°"
+            title=f"Reflectivity Curve, {material}, Density = {density}, Angle = {angle}°",
+            incoming=incoming_rays,
+            outgoing=outgoing,
+            incoming_efields=incoming_efields,
+            outgoing_efields=outgoing_efields
         ).GetPlotHTML()
     except Exception as e:
         # If plotting fails, print the error and return an empty plot.

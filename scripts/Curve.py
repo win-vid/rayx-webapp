@@ -12,10 +12,16 @@ class Curve:
     Uses Plotly for interactive visualization.
     """
 
-    def __init__(self, dataX, dataY, xLabel="No label", yLabel="No label", title="No title"):
+    def __init__(self, dataX, dataY, xLabel="No label", yLabel="No label", title="No title", incoming=[], outgoing=[], incoming_efields=[], outgoing_efields=[]):
 
         self.curveDataX = np.array(dataX)
         self.curveDataY = np.array(dataY)
+
+        self.incoming = np.array(incoming)
+        self.outgoing = np.array(outgoing)
+
+        self.incoming_efields = incoming_efields
+        self.outgoing_efields = outgoing_efields
 
         self.xlabel = xLabel
         self.ylabel = yLabel
@@ -30,12 +36,13 @@ class Curve:
 
         # Create figure
         fig = make_subplots(
-            rows=2, cols=1,
-            row_heights=[0.6, 0.4],  # main vs table
+            rows=3, cols=1,
+            row_heights=[0.5, 0.25, 0.25],  # main vs table
             vertical_spacing=0.1,
             specs=[
                 [{"type": "xy"}],      # row 1: the curve
-                [{"type": "domain"}]   # row 2: the table
+                [{"type": "domain"}],   # row 2: the table
+                [{"type": "domain"}]   # row 3: the table
             ]
         )
 
@@ -57,14 +64,31 @@ class Curve:
             ), row=2, col=1
         )
 
+        # E-field table
+        fig.add_trace(
+            go.Table(
+                header=dict(values=["eV", "In Ex", "In Ey", "In Ez", "Out Ex", "Out Ey", "Out Ez"]),
+                cells=dict(values=[
+                    self.curveDataX,
+                    [e.get("ex", float("nan")) for e in self.incoming_efields],
+                    [e.get("ey", float("nan")) for e in self.incoming_efields],
+                    [e.get("ez", float("nan")) for e in self.incoming_efields],
+                    [e.get("ex", float("nan")) for e in self.outgoing_efields],
+                    [e.get("ey", float("nan")) for e in self.outgoing_efields],
+                    [e.get("ez", float("nan")) for e in self.outgoing_efields],
+                ])
+            ), row=3, col=1
+        )
+
         # Layout
         fig.update_layout(
-            height=800,
-            width=800,
+            height=1000,
+            width=1000,
             title=self.title,
             xaxis_title=self.xlabel,
             yaxis_title=self.ylabel,
-            showlegend=False
+            showlegend=False,
+            dragmode="pan",
         )
 
         # Controls

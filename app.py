@@ -391,6 +391,42 @@ def handle_post_reflectivity():
 
 # endregion
 
+# Handles the post on the server, sends the output .h5 file to the client
+@app.route("/download/handle_post", methods=["POST"])
+def download_handle_post():
+    if request.method == "POST":
+        try:
+            rml_file = request.files["rmlFile"]
+            output_file_name = os.path.splitext(rml_file.filename)[0] + ".h5"
+            
+            save_file(UPLOAD_FOLDER, rml_file)
+        except Exception as e:
+            print("File missing or could not be read", e)
+            return render_template("reflectivity.html")
+        
+        # get_traced_beamline(rml_file)
+        
+        call_rayx(UPLOAD_FOLDER + rml_file.filename)
+
+        remove_file(UPLOAD_FOLDER, rml_file)    
+    
+    return send_file(OUTPUT_PATH + output_file_name, as_attachment=True, download_name=output_file_name, mimetype="application/octet-stream")
+
+# Calls RayX as a subprocess and saves the output as a .h5 file in the output folder
+def call_rayx(rml_path) -> None:
+
+        rayx_cmd = ["./resources/rayx", "-i", rml_path]
+        rayx_cmd += ['-o', OUTPUT_PATH + output_file_name]
+
+        result = subprocess.run(rayx_cmd, capture_output=True, text=True)
+        
+        if result.stderr:
+            print("STDERR:\n", result.stderr)
+
+        if result.returncode != 0:
+            print("Error occurred while running rayx.")
+            raise Exception(result.stderr) 
+
 def get_beamline(rml_file) -> rayx.Rays:
     """
     Takes an RML file and returns a traced beamline using the RayX python package.

@@ -13,7 +13,7 @@
             <p>Upload an RML file to be traced by RayX</p>
         </div>
         <form action="{{url_for('handle_post_reflectivity')}}" method="POST" enctype="multipart/form-data"
-            onsubmit="return validateForm()">
+            onsubmit="return validateForm()" id="reflectivityForm">
             <label for="rmlFile" class="fileUpload">Upload RML File</label>
             <input type="file" id="rmlFile" name="rmlFile" accept=".rml">
             <details open>
@@ -77,6 +77,7 @@
                 </div>
             </details>
             <button type="submit" id="submitButton" onclick="showLoadingIndicator()">Send</button>
+            <button id="downloadButton" onclick="downloadTracedH5()" style="background: none; color: #000000; text-decoration: underline;">Download traced H5-File</button>
         </form>
     </div>
     {% block received %}
@@ -107,6 +108,12 @@
         if (loader.style.display === "none") {
             loader.style.display = "block";
         }
+    }
+
+    function downloadTracedH5(){
+        let form = document.getElementById("reflectivityForm");
+        form.action = "{{url_for('download_handle_post')}}";
+        form.submit();
     }
 </script>
 {% endblock %}

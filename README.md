@@ -31,6 +31,7 @@ The app allows users to upload an `.rml` file, trace the beamline using the RayX
 ### 1. Clone the repository
 `git clone https://github.com/win-vid/rayx-webapp` <br>
 `cd rayx-webapp`
+
 Use the main branch for the most stable version.
 
 ### 2. Installing dependencies using uv

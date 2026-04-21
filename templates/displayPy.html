@@ -16,6 +16,14 @@
                     <input type="file" id="rmlFile" name="rmlFile" accept=".rml"> 
                     <button type="submit" onclick="showLoadingIndicator()">Send</button>
                 </form>
+                <form action="{{ url_for('download_h5') }}" method="POST" id="downloadForm">
+                    <button 
+                        type="submit" 
+                        id="downloadButton" 
+                        style="background: none; color: #000000; text-decoration: underline; cursor: pointer;"
+                        {% if not session.get('last_rml_filename') %}disabled{% endif %}>
+                        Download traced H5-File</button>
+                </form>
             </div>
             <div class="loader" id="loader" style="display: none;"></div>
             {% block received %}

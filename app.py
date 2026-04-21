@@ -86,6 +86,10 @@ def display_handle_post():
             filename = secure_filename(rml_file.filename)
             rml_file.filename = filename
             save_file(UPLOAD_FOLDER, rml_file)
+            
+            session["last_rml_filename"] = filename
+            path = os.path.join(UPLOAD_FOLDER, filename)
+            session["last_rml_path"] = path
 
         output_file_name = rml_file.filename
         
@@ -107,7 +111,7 @@ def display_handle_post():
             df = pd.DataFrame({col: getattr(traced_beamline, col) for col in columns})
 
             # Remove file from server
-            remove_file(UPLOAD_FOLDER, rml_file)
+            #remove_file(UPLOAD_FOLDER, rml_file)
 
             # Plot the traced beamline
             last_element = df["last_element_id"]
@@ -409,7 +413,7 @@ def download_h5():
     filename = session.get("last_rml_filename")
 
     if not path or not os.path.exists(path):
-        flash("No file uploaded yet — please trace a beamline first.")
+        print("No file uploaded yet — please trace a beamline first.")
         return redirect(url_for("reflectivity"))
 
     output_file_name = os.path.splitext(filename)[0] + ".h5"

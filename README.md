@@ -1,15 +1,15 @@
-# RAYX Web App
+# RAYX WebApp
 
 <img width="800" height="450" alt="rayx-webapp" src="https://github.com/user-attachments/assets/39e6d50b-7e4a-4ae6-9eed-ecb1b76cf238" />
 
 
-A lightweight Flask-based web application for visualizing <a href="https://github.com/hz-b/rayx">RayX beamline simulations</a> .  
-The app allows users to upload an `.rml` file, trace the beamline using the RayX Python bindings, and **interactively** inspect the resulting ray distributions as **2D histograms with per-element breakdowns**.
+A lightweight Flask-based web application for visualizing <a href="https://github.com/hz-b/rayx">RAYX beamline simulations</a> .  
+The app allows users to upload an `.rml` file, trace the beamline using the RAYX Python bindings, and **interactively** inspect the resulting ray distributions as **2D histograms with per-element breakdowns**.
 
 ## Features
 
-- Upload RayX `.rml` beamline definition files
-- Trace beamlines using the **RayX Python package**
+- Upload RAYX `.rml` beamline definition files
+- Trace beamlines using the **RAYX Python package**
 - Generate:
   - 2D histograms
   - Marginal 1D histograms
@@ -21,7 +21,7 @@ The app allows users to upload an `.rml` file, trace the beamline using the RayX
 
 - **Python 3**
 - **Flask** – web framework
-- **RayX** – beamline tracing engine
+- **RAYX** – beamline tracing engine
 - **Plotly** – plotting
 - **NumPy** – numerical processing
 - **Jinja2** – templating
@@ -54,7 +54,7 @@ You can then access the web app by entering the following address into your web-
 ## Tracing beamlines
 You can find an example Metrix beamline under 
 `example_beamline/METRIX_U41_G1_H1_318eV_PS_MLearn_v114.rml`.  
-The application also works with any other beamline encoded in the **RayX `.rml` format**.
+The application also works with any other beamline encoded in the **RAYX `.rml` format**.
 Select the beamline and click on "send". 
 After a short amount of time the server will return the plots of the elements.
 

@@ -12,10 +12,14 @@
         <div class="DescriptionContainer">
             <p>Upload an RML file to be traced by RayX</p>
         </div>
-        <form action="{{url_for('handle_post_reflectivity')}}" method="POST" enctype="multipart/form-data"
-            onsubmit="return validateForm()">
+        <form action="{{url_for('handle_post_reflectivity')}}" 
+            method="POST" enctype="multipart/form-data"
+            onsubmit="return validateForm()" 
+            id="reflectivityForm">
+
             <label for="rmlFile" class="fileUpload">Upload RML File</label>
             <input type="file" id="rmlFile" name="rmlFile" accept=".rml">
+
             <details open>
                 <summary>Settings</summary>
                 <div class="ReflectivitySettingsContainer">
@@ -78,6 +82,14 @@
             </details>
             <button type="submit" id="submitButton" onclick="showLoadingIndicator()">Send</button>
         </form>
+        <form action="{{ url_for('download_h5') }}" method="POST" id="downloadForm">
+            <button 
+                type="submit" 
+                id="downloadButton" 
+                style="background: none; color: #000000; text-decoration: underline;"
+                {% if not session.get('last_rml_filename') %}disabled{% endif %}>
+                Download traced H5-File</button>
+        </form>
     </div>
     {% block received %}
     {% endblock %}
@@ -99,6 +111,7 @@
             alert("'From eV' must be smaller than 'To eV'!");
             return false;
         }
+
         return true;
     }
 
@@ -106,6 +119,7 @@
     function showLoadingIndicator() {
         if (loader.style.display === "none") {
             loader.style.display = "block";
+            document.body.style.cursor = "progress";
         }
     }
 </script>

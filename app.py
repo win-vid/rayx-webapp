@@ -20,6 +20,9 @@ app = Flask(__name__)
 UPLOAD_FOLDER = Path("./uploads/")
 UPLOAD_FOLDER.mkdir(exist_ok=True)
 
+OUTPUT_PATH = Path("./output/")
+OUTPUT_PATH.mkdir(exist_ok=True)
+
 output_file_name = ""
 
 # region Configurations
@@ -84,6 +87,10 @@ def display_handle_post():
             filename = secure_filename(rml_file.filename)
             rml_file.filename = filename
             save_file(UPLOAD_FOLDER, rml_file)
+            
+            session["last_rml_filename"] = filename
+            path = os.path.join(UPLOAD_FOLDER, filename)
+            session["last_rml_path"] = path
 
         output_file_name = rml_file.filename
         
@@ -105,7 +112,7 @@ def display_handle_post():
             df = pd.DataFrame({col: getattr(traced_beamline, col) for col in columns})
 
             # Remove file from server
-            remove_file(UPLOAD_FOLDER, rml_file)
+            #remove_file(UPLOAD_FOLDER, rml_file)
 
             # Plot the traced beamline
             last_element = df["last_element_id"]
@@ -196,6 +203,13 @@ def handle_post_reflectivity():
             session["last_rml_filename"] = filename
             path = os.path.join(UPLOAD_FOLDER, filename)
             rml_file.save(path)
+            session["last_rml_filename"] = filename # store filename to make it available for download
+            session["last_rml_path"] = str(path)
+        elif session.get("last_rml_filename"):
+            filename = session["last_rml_filename"]
+            path = session["last_rml_path"]
+        else:
+            return render_template("reflectivity.html")
         # endregion
 
         # region RML-File Handling
@@ -391,6 +405,48 @@ def handle_post_reflectivity():
     )
 
 # endregion
+
+# Handles the post on the server, sends the output .h5 file to the client
+@app.route("/reflectivity/download", methods=["POST"])
+def download_h5():
+    # No file upload needed — uses session file
+    path = session.get("last_rml_path")
+    filename = session.get("last_rml_filename")
+
+    if not path or not os.path.exists(path):
+        print("No file uploaded yet — please trace a beamline first.")
+        return redirect(url_for("reflectivity"))
+
+    output_file_name = os.path.splitext(filename)[0] + ".h5"
+    output_path = str(OUTPUT_PATH) + "/" + output_file_name
+
+    try:
+        call_rayx(path, output_file_name)
+    except Exception as e:
+        traceback.print_exc()
+        return "RAY-X failed", 500
+
+    return send_file(
+        output_path,
+        as_attachment=True,
+        download_name=output_file_name,
+        mimetype="application/octet-stream"
+    )
+
+# Calls RayX as a subprocess and saves the output as a .h5 file in the output folder
+def call_rayx(rml_path, output_file_name) -> None:
+
+        rayx_cmd = ["./rayx/rayx", "-i", rml_path]
+        rayx_cmd += ['-o', str(OUTPUT_PATH) + "/" + output_file_name]
+
+        result = subprocess.run(rayx_cmd, capture_output=True, text=True)
+        
+        if result.stderr:
+            print("STDERR:\n", result.stderr)
+
+        if result.returncode != 0:
+            print("Error occurred while running rayx.")
+            raise Exception(result.stderr) 
 
 def get_beamline(rml_file) -> rayx.Rays:
     """

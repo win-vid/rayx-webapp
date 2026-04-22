@@ -10,5 +10,5 @@ dependencies = [
     "pandas>=3.0.0",
     "plotly>=6.5.2",
     "python-dotenv>=1.2.2",
-    "rayx>=0.4.1",
+    "rayx>=0.4.2",
 ]

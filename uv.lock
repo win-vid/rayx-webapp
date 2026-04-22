@@ -375,7 +375,7 @@ requires-dist = [
     { name = "pandas", specifier = ">=3.0.0" },
     { name = "plotly", specifier = ">=6.5.2" },
     { name = "python-dotenv", specifier = ">=1.2.2" },
-    { name = "rayx", specifier = ">=0.4.1" },
+    { name = "rayx", specifier = ">=0.4.2" },
 ]
 
 [[package]]

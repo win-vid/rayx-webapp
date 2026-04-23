@@ -74,7 +74,7 @@ Additionally, plotly allows you to easily download the plot.
 ## Docker
 ### Creating a Docker Container
 Requirements
-* either **Docker** or **Podman**
+* either <a href="https://www.docker.com/">**Docker**</a> or <a href="https://podman.io/">**Podman**</a>
 * for better management also install **Docker Desktop** or **Podman Desktop**
 
 If you want to make changes to the workflow you have to edit the `Dockerfile` config in the root directory. 

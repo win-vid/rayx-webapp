@@ -9,95 +9,96 @@
 </div>
 <div class="MainContent">
     <div class="FormContainer">
-        <div class="DescriptionContainer">
-            <p>Upload an RML file to be traced by RayX</p>
+        <button id="toggleBtn" onclick="toggleForm()">Hide Menu</button>
+        <div class="FormContentContainer" id="FormContentContainer">
+            <div class="DescriptionContainer">
+                <p>Upload an RML file to be traced by RayX</p>
+            </div>
+            <form action="{{url_for('handle_post_reflectivity')}}" 
+                method="POST" enctype="multipart/form-data"
+                onsubmit="return validateForm()" 
+                id="reflectivityForm">
+
+                <label for="rmlFile" class="fileUpload">Upload RML File</label>
+                <input type="file" id="rmlFile" name="rmlFile" accept=".rml">
+                    <div class="ReflectivitySettingsContainer">
+                        <div class="GraphSettingsContainer">
+                            <h3>Graph Settings</h3>
+                            <div class="MultipleSettingsContainer">
+                                <div class="settingContainer">
+                                    <label for="min_e">From eV:</label>
+                                    <input type="number" id="min_e" value="{{min_e or 30}}" name="min_e" min="0" max="1000">
+                                    <!-- TODO: Cant be bigger than max_e -->
+                                </div>
+                                <div class="settingContainer">
+                                    <label for="max_e">To eV:</label>
+                                    <input type="number" id="max_e" value="{{max_e or 100}}" name="max_e" min="0"
+                                        max="1000">
+                                    <!--TODO: Change to 1000-->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="MirrorSettingsContainer">
+                            <h3>Mirror Settings</h3>
+                            <div class="MultipleSettingsContainer">
+                                <div class="settingContainer">
+                                    <label for="angle">Angle (°):</label>
+                                    <input type="number" id="angle" value="{{angle or 10}}" name="angle" min="-360"
+                                        max="360">
+                                </div>
+                                <div class="settingContainer">
+                                    <label for="material">Material:</label>
+                                    <input type="text" id="material" name="material" value="{{material or 'Au'}}">
+                                </div>
+                                <div class="settingContainer">
+                                    <label for="density">Density (g/cm³):</label>
+                                    <input type="number" id="density" value="{{density or -1}}" name="density" min="-1"
+                                        max="100" title="-1 for default density">
+                                </div>
+                                <div class="settingContainer">
+                                    <label for="linearPol_0">Linear Polarization 0:</label>
+                                    <input type="number" id="linearPol_0" value="{{linearPol_0 or 0}}" name="linearPol_0"
+                                        min="-1" max="1">
+                                </div>
+                                <div class="settingContainer">
+                                    <label for="linearPol_45">Linear Polarization 45:</label>
+                                    <input type="number" id="linearPol_45" value="{{linearPol_45 or 0}}" name="linearPol_45"
+                                        min="-1" max="1">
+                                </div>
+                                <div class="settingContainer">
+                                    <label for="circularPol">Circular Polarization:</label>
+                                    <input type="number" id="circularPol" value="{{circularPol or 0}}" name="circularPol"
+                                        min="-1" max="1">
+                                </div>
+                                <div class="settingContainer">
+                                    <label for="roughness">Roughness (nm):</label>
+                                    <input type="number" id="roughness" value="{{roughness or 1}}" name="roughness" min="0"
+                                        max="100">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <button type="submit" id="submitButton" onclick="showLoadingIndicator()">Send</button>
+            </form>
+            <form action="{{ url_for('download_h5') }}" method="POST" id="downloadForm">
+                <button 
+                    type="submit" 
+                    id="downloadButton" 
+                    style="background: none; color: #000000; text-decoration: underline;"
+                    {% if not session.get('last_rml_filename') %}disabled{% endif %}>
+                    Download traced H5-File</button>
+            </form>
         </div>
-        <form action="{{url_for('handle_post_reflectivity')}}" 
-            method="POST" enctype="multipart/form-data"
-            onsubmit="return validateForm()" 
-            id="reflectivityForm">
-
-            <label for="rmlFile" class="fileUpload">Upload RML File</label>
-            <input type="file" id="rmlFile" name="rmlFile" accept=".rml">
-
-            <details open>
-                <summary>Settings</summary>
-                <div class="ReflectivitySettingsContainer">
-                    <div class="GraphSettingsContainer">
-                        <h3>Graph Settings</h3>
-                        <div class="MultipleSettingsContainer">
-                            <div class="settingContainer">
-                                <label for="min_e">From eV:</label>
-                                <input type="number" id="min_e" value="{{min_e or 30}}" name="min_e" min="0" max="1000">
-                                <!-- TODO: Cant be bigger than max_e -->
-                            </div>
-                            <div class="settingContainer">
-                                <label for="max_e">To eV:</label>
-                                <input type="number" id="max_e" value="{{max_e or 100}}" name="max_e" min="0"
-                                    max="1000">
-                                <!--TODO: Change to 1000-->
-                            </div>
-                        </div>
-                    </div>
-                    <div class="MirrorSettingsContainer">
-                        <h3>Mirror Settings</h3>
-                        <div class="MultipleSettingsContainer">
-                            <div class="settingContainer">
-                                <label for="angle">Angle (°):</label>
-                                <input type="number" id="angle" value="{{angle or 10}}" name="angle" min="-360"
-                                    max="360">
-                            </div>
-                            <div class="settingContainer">
-                                <label for="material">Material:</label>
-                                <input type="text" id="material" name="material" value="{{material or 'Au'}}">
-                            </div>
-                            <div class="settingContainer">
-                                <label for="density">Density (g/cm³):</label>
-                                <input type="number" id="density" value="{{density or -1}}" name="density" min="-1"
-                                    max="100" title="-1 for default density">
-                            </div>
-                            <div class="settingContainer">
-                                <label for="linearPol_0">Linear Polarization 0:</label>
-                                <input type="number" id="linearPol_0" value="{{linearPol_0 or 0}}" name="linearPol_0"
-                                    min="-1" max="1">
-                            </div>
-                            <div class="settingContainer">
-                                <label for="linearPol_45">Linear Polarization 45:</label>
-                                <input type="number" id="linearPol_45" value="{{linearPol_45 or 0}}" name="linearPol_45"
-                                    min="-1" max="1">
-                            </div>
-                            <div class="settingContainer">
-                                <label for="circularPol">Circular Polarization:</label>
-                                <input type="number" id="circularPol" value="{{circularPol or 0}}" name="circularPol"
-                                    min="-1" max="1">
-                            </div>
-                            <div class="settingContainer">
-                                <label for="roughness">Roughness (nm):</label>
-                                <input type="number" id="roughness" value="{{roughness or 1}}" name="roughness" min="0"
-                                    max="100">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </details>
-            <button type="submit" id="submitButton" onclick="showLoadingIndicator()">Send</button>
-        </form>
-        <form action="{{ url_for('download_h5') }}" method="POST" id="downloadForm">
-            <button 
-                type="submit" 
-                id="downloadButton" 
-                style="background: none; color: #000000; text-decoration: underline;"
-                {% if not session.get('last_rml_filename') %}disabled{% endif %}>
-                Download traced H5-File</button>
-        </form>
     </div>
     {% block received %}
     {% endblock %}
 
     <div class="PlotsContainer">
         <div class="loader" id="loader" style="display: none;"></div>
-        <h2 style="display: none;">{{ RMLFileName }}</h2>
-        {{ plot_data | safe }}
+        <div class="ImageContainer" id="ImageContainer">
+            <h2 style="display: none;">{{ RMLFileName }}</h2>
+            {{ plot_data | safe }}
+        </div>
     </div>
 </div>
 
@@ -118,9 +119,18 @@
     loader = document.getElementById("loader");
     function showLoadingIndicator() {
         if (loader.style.display === "none") {
+            document.getElementById("ImageContainer").style.display = "none";
             loader.style.display = "block";
             document.body.style.cursor = "progress";
         }
+    }
+
+    function toggleForm() {
+        const form = document.getElementById('FormContentContainer');
+        const btn = document.getElementById('toggleBtn');
+        const isHidden = form.style.display === 'none';
+        form.style.display = isHidden ? 'flex' : 'none';
+        btn.textContent = isHidden ? 'Hide Menu' : 'Open Menu';
     }
 </script>
 {% endblock %}

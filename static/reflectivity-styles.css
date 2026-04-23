@@ -26,12 +26,32 @@ h3 {
     padding: 0.5rem;
 }
 
-#material{
-    width: 50%;
+details {
+    align-items: center;
+}
+
+input{
+    width: 5rem;
+}
+
+#toggleBtn {
+    text-align: start;
+    width: 100%;
+    background: none;
+    color: var(--text-color);
+    border-bottom: #333 1px ridge;
+    border-radius: 0;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#toggleBtn:hover {
+    color: var(--primary-color);
+    border-bottom: var(--primary-color-hover) 1px solid;
 }
 
 #submitButton{
-    width: 100%;
+    width: 95%;
     padding: 0.5rem;
     margin: 1rem;
 }
@@ -39,6 +59,8 @@ h3 {
 /* CONTAINERS */
 .FormContainer {
     margin: .5rem;
+    min-width: 38rem;
+    position: relative;
 }
 
 .MainContent {
@@ -55,11 +77,20 @@ h3 {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     align-content: start;
     align-items: start;
+    min-height: 65vh;
+}
+
+.FormContentContainer {
+    display: flex;
+    align-content: center;
+    align-items: center;
+    flex-flow: column;
 }
 
 .fileUpload {
     background: var(--label-background-color);
     color: var(--label-text-color);
+    margin-bottom: 1rem;
 }
 
 .PlotsContainer {
@@ -76,6 +107,10 @@ h3 {
 }
 
 .GraphSettingsContainer {
+    width: 100%;
+}
+
+.MirrorSettingsContainer {
     width: 100%;
 }
 
@@ -100,6 +135,42 @@ h3 {
     margin: 0;
 }
 
+/* FORM ADJUSTMENTS */
+input[type="number"] {
+    border: none;
+    border-bottom: 1px solid var(--text-color);
+    background: none;
+}
+
+input[type="number"]:focus {
+    outline: none;
+    border-bottom: 2px solid var(--primary-color);
+    background: white;
+}
+
+input[type="text"] {
+    border: none;
+    border-bottom: 1px solid var(--text-color);
+    background: none;
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-bottom: 2px solid var(--primary-color);
+    background: white;
+}
+
 #downloadButton:hover {
     cursor: pointer;
+}
+
+@media only screen and (max-width: 1830px) {
+    .MainContent {
+        grid-template-columns: 1fr;
+    }
+
+    .FormContainer {
+        box-shadow: none;
+        border: #333 1px solid;
+    }
 }

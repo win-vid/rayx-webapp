@@ -232,6 +232,7 @@ input[type="file"] {
 /* HTML: <div class="loader"></div> */
 .loader {
     margin: 3rem;
+    margin-top: 20vh;
     width: 10rem;
     aspect-ratio: 2;
     --c:linear-gradient(#FFD412 25%,#ABD406 0 50%,#FF821C 0 75%,#FFD412 0);

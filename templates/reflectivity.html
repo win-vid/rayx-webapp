@@ -13,16 +13,16 @@
             <summary>Settings</summary>
         <!--<button id="toggleBtn" onclick="toggleForm()">Hide Menu</button>-->
         <div class="FormContentContainer" id="FormContentContainer">
-            <div class="DescriptionContainer">
+            <!--<div class="DescriptionContainer">
                 <p>Upload an RML file to be traced by RayX</p>
-            </div>
+            </div> -->
             <form action="{{url_for('handle_post_reflectivity')}}" 
                 method="POST" enctype="multipart/form-data"
                 onsubmit="return validateForm()" 
                 id="reflectivityForm">
 
-                <label for="rmlFile" class="fileUpload">Upload RML File</label>
-                <input type="file" id="rmlFile" name="rmlFile" accept=".rml">
+                <!-- <label for="rmlFile" class="fileUpload">Upload RML File</label>
+                <input type="file" id="rmlFile" name="rmlFile" accept=".rml"> -->
                     <div class="ReflectivitySettingsContainer">
                         <div class="GraphSettingsContainer">
                             <h3>Graph Settings</h3>

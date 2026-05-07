@@ -3,7 +3,7 @@
  <version>1.15</version>
  <beamline>
   <object name="Point Source" type="Point Source">
-   <param id="numberRays" enabled="T">1000</param>
+   <param id="numberRays" enabled="T">1</param>
    <param id="sourceWidthDistribution" comment="gaussian (sigma)" enabled="T">1</param>
    <param id="sourceWidth" enabled="T">0</param>
    <param id="sourceHeightDistribution" comment="gaussian (sigma)" enabled="T">1</param>
@@ -24,9 +24,9 @@
     <z>0.0000000000000000</z>
    </param>
    <param id="worldXdirection" enabled="F">
-    <x>1.0000000000000000</x>
+    <x>0.9848077530122080</x>
     <y>0.0000000000000000</y>
-    <z>0.0000000000000000</z>
+    <z>0.1736481776669303</z>
    </param>
    <param id="worldYdirection" enabled="F">
     <x>0.0000000000000000</x>
@@ -39,14 +39,14 @@
     <z>1.0000000000000000</z>
    </param>
    <param id="energyDistributionType" comment="Values" enabled="T">1</param>
-   <param id="photonEnergyDistributionFile" absolute="" enabled="F"></param>
+   <param id="photonEnergyDistributionFile" absolute="" enabled="F" />
    <param id="photonEnergy" enabled="T">100</param>
    <param id="energySpreadType" comment="white band" enabled="T">0</param>
    <param id="energySpreadUnit" comment="eV" enabled="T">0</param>
    <param id="energySpread" enabled="T">0</param>
-   <param id="linearPol_0" enabled="T">0</param>
-   <param id="linearPol_45" enabled="T">0</param>
-   <param id="circularPol" enabled="T">0</param>
+   <param id="linearPol_0" enabled="T">0.0</param>
+   <param id="linearPol_45" enabled="T">0.0</param>
+   <param id="circularPol" enabled="T">0.0</param>
    <param id="sourcePulseType" comment="all rays start simultaneously" enabled="T">0</param>
    <param id="sourcePulseLength" enabled="F">0</param>
   </object>
@@ -54,7 +54,7 @@
    <param id="geometricalShape" comment="rectangle" enabled="T">0</param>
    <param id="totalWidth" enabled="T">50</param>
    <param id="totalLength" enabled="T">200</param>
-   <param id="grazingIncAngle" enabled="T">10</param>
+   <param id="grazingIncAngle" enabled="T">10.0</param>
    <param id="distancePreceding" enabled="T">100</param>
    <param id="azimuthalAngle" enabled="T">0</param>
    <param id="systemMount" comment="standalone" enabled="T">0</param>
@@ -67,21 +67,21 @@
    <param id="reflectivitySenkrecht" enabled="T">0.716391</param>
    <param id="reflectivityParallel" enabled="T">0.674078</param>
    <param id="reflectivityPhase" enabled="T">172.278</param>
-   <param id="elementSubstrate" enabled="T">Si</param>
-   <param id="roughnessSubstrate" enabled="T">0</param>
-   <param id="densitySubstrate" auto="F" enabled="T">0</param>
+   <param id="elementSubstrate" enabled="T">Au</param>
+   <param id="roughnessSubstrate" enabled="T">1.0</param>
+   <param id="densitySubstrate" auto="F" enabled="T">19.32</param>
    <param id="surfaceCoating" comment="Substrate only" enabled="T">0</param>
-   <param id="coatingFile" absolute="" enabled="F"></param>
+   <param id="coatingFile" absolute="" enabled="F" />
    <param id="numberLayer" enabled="F">2</param>
-   <param id="materialCoating1" enabled="F"></param>
+   <param id="materialCoating1" enabled="F" />
    <param id="thicknessCoating1" enabled="F">0</param>
    <param id="roughnessCoating1" enabled="F">0</param>
    <param id="densityCoating1" auto="T" enabled="F">0</param>
-   <param id="materialCoating2" enabled="F"></param>
+   <param id="materialCoating2" enabled="F" />
    <param id="thicknessCoating2" enabled="F">0</param>
    <param id="roughnessCoating2" enabled="F">0</param>
    <param id="densityCoating2" auto="T" enabled="F">0</param>
-   <param id="materialTopLayer" enabled="F"></param>
+   <param id="materialTopLayer" enabled="F" />
    <param id="thicknessTopLayer" enabled="F">0</param>
    <param id="roughnessTopLayer" enabled="F">0</param>
    <param id="densityTopLayer" auto="T" enabled="F">0</param>
@@ -123,7 +123,7 @@
    </param>
    <param id="slopeError" comment="No" enabled="T">1</param>
    <param id="profileKind" comment="no Profile" enabled="F">2</param>
-   <param id="profileFile" absolute="" enabled="F"></param>
+   <param id="profileFile" absolute="" enabled="F" />
    <param id="slopeErrorSag" enabled="F">0</param>
    <param id="slopeErrorMer" enabled="F">0</param>
    <param id="thermalDistortionAmp" enabled="F">0</param>

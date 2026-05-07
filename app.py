@@ -191,36 +191,11 @@ def handle_post_reflectivity():
         incoming_efields = []
         outgoing_efields = []
 
-        #region POST Handling
-
-        # Check if the post request has the file part
-        if "rmlFile" not in request.files:
-            return redirect(request.url)
-
-        rml_file = request.files["rmlFile"]
-
-        # If the user submits nothing, the server defaults to the last uploaded file, if one exists
-        # If there is no last uploaded file, the user is redirected to the reflectivity page
-        if rml_file.filename == '':
-            try:
-                rml_file = filename = session.get("last_rml_filename") 
-                path = os.path.join(UPLOAD_FOLDER, filename)
-            except:
-                return render_template("reflectivity.html") 
-        
-        # Else if the user submits a file, check if file is allowed and save it, if it is
-        elif rml_file and allowed_file(rml_file.filename):
-            filename = secure_filename(rml_file.filename)
-            session["last_rml_filename"] = filename
-            path = os.path.join(UPLOAD_FOLDER, filename)
-            rml_file.save(path)
-            session["last_rml_filename"] = filename # store filename to make it available for download
-            session["last_rml_path"] = str(path)
-        elif session.get("last_rml_filename"):
-            filename = session["last_rml_filename"]
-            path = session["last_rml_path"]
-        else:
-            return render_template("reflectivity.html")
+        # region POST Handling
+        path = "./example_beamlines/reflectivity.rml"
+        filename = "reflectivity.rml"
+        session["last_rml_filename"] = filename
+        session["last_rml_path"] = path
         # endregion
 
         # region RML-File Handling
@@ -347,6 +322,8 @@ def handle_post_reflectivity():
                     })
                     
                 # Calculate the reflectivity by dividing the electric field strength of the mirror by that of the source
+                print("Electic Field (V/m)")
+                print(electric_field_mirror, electric_field_source)
                 reflectivity = np.abs(electric_field_mirror / electric_field_source)
 
                 # Add the electric field strength and reflectivity to the dataframe
@@ -492,25 +469,30 @@ def allowed_file(filename):
 # TODO: Check out what happens if return returns return magnitudes.sum() or return magnitudes.mean() or return np.sqrt((magnitudes**2).mean())
 def get_n_electric_field(df):
     """
-    Calculates the electric field strength from the electric field components in the dataframe. 
-    It sums the magnitudes of the electric field components to get the total electric field strength.
+    Calculates the total intensity from all rays in the dataframe.
+    Intensity per ray = |Ex|² + |Ey|² + |Ez|² (using conjugate for complex fields).
+    Returns a single scalar: the summed intensity across all rays.
     """
-
     if df.empty:
         return 0
 
     try:
-        # Calculate the electric field strength by summing the magnitudes of the electric field components
-        magnitudes = np.sqrt(
-            np.abs(df["electric_field_x"])**2 + 
-            np.abs(df["electric_field_y"])**2 + 
-            np.abs(df["electric_field_z"])**2
+        ex = df["electric_field_x"].values
+        ey = df["electric_field_y"].values
+        ez = df["electric_field_z"].values
+
+        # Per-ray intensity: real part of E · E* (handles complex fields)
+        per_ray_intensity = (
+            np.real(ex * np.conj(ex)) +
+            np.real(ey * np.conj(ey)) +
+            np.real(ez * np.conj(ez))
         )
+
+        return float(np.sum(per_ray_intensity))
+
     except Exception as e:
         traceback.print_exc()
         return 0
-    
-    return magnitudes.mean() # Source: Claude, Formerly this was magnitudes.sum()
 
 def generate_energy_beamlines(template_path, min_e=30, max_e=1000) -> list:
     """
